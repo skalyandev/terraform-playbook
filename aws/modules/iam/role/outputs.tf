@@ -1,0 +1,23 @@
+output "role_ids" {
+
+  value = {
+    for k, v in aws_iam_role.this :
+    k => v.id
+  }
+}
+
+output "role_arns" {
+
+  value = {
+    for k, v in aws_iam_role.this :
+    k => v.arn
+  }
+}
+
+output "role_names" {
+
+  value = {
+    for k, v in aws_iam_role.this :
+    k => v.name
+  }
+}

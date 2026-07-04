@@ -1,0 +1,129 @@
+digraph G {
+  rankdir = "RL";
+  node [shape = rect, fontname = "sans-serif"];
+  subgraph "cluster_module.amis" {
+    label = "module.amis"
+    fontname = "sans-serif"
+    "module.amis.data.aws_ami.this" [label="data.aws_ami.this"];
+  }
+  subgraph "cluster_module.ec2" {
+    label = "module.ec2"
+    fontname = "sans-serif"
+    "module.ec2.aws_instance.this" [label="aws_instance.this"];
+  }
+  subgraph "cluster_module.eks_cluster" {
+    label = "module.eks_cluster"
+    fontname = "sans-serif"
+    "module.eks_cluster.aws_eks_cluster.this" [label="aws_eks_cluster.this"];
+  }
+  subgraph "cluster_module.eks_node_groups" {
+    label = "module.eks_node_groups"
+    fontname = "sans-serif"
+    "module.eks_node_groups.aws_eks_node_group.this" [label="aws_eks_node_group.this"];
+  }
+  subgraph "cluster_module.elastic_ip" {
+    label = "module.elastic_ip"
+    fontname = "sans-serif"
+    "module.elastic_ip.aws_eip.this" [label="aws_eip.this"];
+  }
+  subgraph "cluster_module.iam_policies" {
+    label = "module.iam_policies"
+    fontname = "sans-serif"
+    "module.iam_policies.aws_iam_policy.this" [label="aws_iam_policy.this"];
+  }
+  subgraph "cluster_module.iam_roles" {
+    label = "module.iam_roles"
+    fontname = "sans-serif"
+    "module.iam_roles.data.aws_iam_policy_document.trust" [label="data.aws_iam_policy_document.trust"];
+    "module.iam_roles.aws_iam_role.this" [label="aws_iam_role.this"];
+  }
+  subgraph "cluster_module.igw" {
+    label = "module.igw"
+    fontname = "sans-serif"
+    "module.igw.aws_internet_gateway.this" [label="aws_internet_gateway.this"];
+  }
+  subgraph "cluster_module.instance_profiles" {
+    label = "module.instance_profiles"
+    fontname = "sans-serif"
+    "module.instance_profiles.aws_iam_instance_profile.this" [label="aws_iam_instance_profile.this"];
+  }
+  subgraph "cluster_module.nat_gateway" {
+    label = "module.nat_gateway"
+    fontname = "sans-serif"
+    "module.nat_gateway.aws_nat_gateway.this" [label="aws_nat_gateway.this"];
+  }
+  subgraph "cluster_module.role_policy_attachments" {
+    label = "module.role_policy_attachments"
+    fontname = "sans-serif"
+    "module.role_policy_attachments.aws_iam_role_policy_attachment.custom" [label="aws_iam_role_policy_attachment.custom"];
+    "module.role_policy_attachments.aws_iam_role_policy_attachment.managed" [label="aws_iam_role_policy_attachment.managed"];
+  }
+  subgraph "cluster_module.route_table_associations" {
+    label = "module.route_table_associations"
+    fontname = "sans-serif"
+    "module.route_table_associations.aws_route_table_association.this" [label="aws_route_table_association.this"];
+  }
+  subgraph "cluster_module.route_tables" {
+    label = "module.route_tables"
+    fontname = "sans-serif"
+    "module.route_tables.aws_route_table.this" [label="aws_route_table.this"];
+  }
+  subgraph "cluster_module.routes" {
+    label = "module.routes"
+    fontname = "sans-serif"
+    "module.routes.aws_route.this" [label="aws_route.this"];
+  }
+  subgraph "cluster_module.security_group_rules" {
+    label = "module.security_group_rules"
+    fontname = "sans-serif"
+    "module.security_group_rules.aws_security_group_rule.cidr" [label="aws_security_group_rule.cidr"];
+    "module.security_group_rules.aws_security_group_rule.ipv6" [label="aws_security_group_rule.ipv6"];
+    "module.security_group_rules.aws_security_group_rule.prefix_list" [label="aws_security_group_rule.prefix_list"];
+    "module.security_group_rules.aws_security_group_rule.self" [label="aws_security_group_rule.self"];
+    "module.security_group_rules.aws_security_group_rule.sg" [label="aws_security_group_rule.sg"];
+  }
+  subgraph "cluster_module.security_groups" {
+    label = "module.security_groups"
+    fontname = "sans-serif"
+    "module.security_groups.aws_security_group.this" [label="aws_security_group.this"];
+  }
+  subgraph "cluster_module.subnets" {
+    label = "module.subnets"
+    fontname = "sans-serif"
+    "module.subnets.aws_subnet.this" [label="aws_subnet.this"];
+  }
+  subgraph "cluster_module.vpc" {
+    label = "module.vpc"
+    fontname = "sans-serif"
+    "module.vpc.aws_vpc.this" [label="aws_vpc.this"];
+  }
+  "module.ec2.aws_instance.this" -> "module.amis.data.aws_ami.this";
+  "module.ec2.aws_instance.this" -> "module.instance_profiles.aws_iam_instance_profile.this";
+  "module.ec2.aws_instance.this" -> "module.security_groups.aws_security_group.this";
+  "module.ec2.aws_instance.this" -> "module.subnets.aws_subnet.this";
+  "module.eks_cluster.aws_eks_cluster.this" -> "module.iam_roles.aws_iam_role.this";
+  "module.eks_cluster.aws_eks_cluster.this" -> "module.security_groups.aws_security_group.this";
+  "module.eks_cluster.aws_eks_cluster.this" -> "module.subnets.aws_subnet.this";
+  "module.eks_node_groups.aws_eks_node_group.this" -> "module.eks_cluster.aws_eks_cluster.this";
+  "module.iam_roles.aws_iam_role.this" -> "module.iam_roles.data.aws_iam_policy_document.trust";
+  "module.igw.aws_internet_gateway.this" -> "module.vpc.aws_vpc.this";
+  "module.instance_profiles.aws_iam_instance_profile.this" -> "module.iam_roles.aws_iam_role.this";
+  "module.nat_gateway.aws_nat_gateway.this" -> "module.elastic_ip.aws_eip.this";
+  "module.nat_gateway.aws_nat_gateway.this" -> "module.subnets.aws_subnet.this";
+  "module.role_policy_attachments.aws_iam_role_policy_attachment.custom" -> "module.iam_policies.aws_iam_policy.this";
+  "module.role_policy_attachments.aws_iam_role_policy_attachment.custom" -> "module.iam_roles.aws_iam_role.this";
+  "module.role_policy_attachments.aws_iam_role_policy_attachment.managed" -> "module.iam_roles.aws_iam_role.this";
+  "module.route_table_associations.aws_route_table_association.this" -> "module.route_tables.aws_route_table.this";
+  "module.route_table_associations.aws_route_table_association.this" -> "module.subnets.aws_subnet.this";
+  "module.route_tables.aws_route_table.this" -> "module.vpc.aws_vpc.this";
+  "module.routes.aws_route.this" -> "module.igw.aws_internet_gateway.this";
+  "module.routes.aws_route.this" -> "module.nat_gateway.aws_nat_gateway.this";
+  "module.routes.aws_route.this" -> "module.route_tables.aws_route_table.this";
+  "module.security_group_rules.aws_security_group_rule.cidr" -> "module.security_groups.aws_security_group.this";
+  "module.security_group_rules.aws_security_group_rule.ipv6" -> "module.security_groups.aws_security_group.this";
+  "module.security_group_rules.aws_security_group_rule.prefix_list" -> "module.security_groups.aws_security_group.this";
+  "module.security_group_rules.aws_security_group_rule.self" -> "module.security_groups.aws_security_group.this";
+  "module.security_group_rules.aws_security_group_rule.sg" -> "module.security_groups.aws_security_group.this";
+  "module.security_groups.aws_security_group.this" -> "module.vpc.aws_vpc.this";
+  "module.subnets.aws_subnet.this" -> "module.vpc.aws_vpc.this";
+}
