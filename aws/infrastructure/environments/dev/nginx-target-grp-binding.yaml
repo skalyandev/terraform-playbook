@@ -1,0 +1,10 @@
+apiVersion: elbv2.k8s.aws/v1beta1
+kind: TargetGroupBinding
+metadata:
+  name: nginx-tgb
+  namespace: dev
+spec:
+  serviceRef:
+    name: nginx-service
+    port: 80
+  targetGroupARN: arn:aws:elasticloadbalancing:ap-south-1:792811916240:targetgroup/nginx/0ea4462431238648

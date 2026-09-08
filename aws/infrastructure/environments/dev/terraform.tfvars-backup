@@ -1,0 +1,1268 @@
+##########################################
+# AWS REGION
+##########################################
+aws_region = "ap-south-1"
+
+##########################################
+# VPC PARAMS
+##########################################
+vpc_cidr = "10.0.0.0/16"
+
+
+##########################################
+# ROUTE53 HSOTED ZONE PARMS
+##########################################
+domain_name = "cloud-devops-lab.xyz"
+
+
+##########################################
+# ROUTE53 RECORD
+##########################################
+route53_records = {
+  app-alb = {
+    name = "app.cloud-devops-lab.xyz"
+  }
+
+  jenkins = {
+    name = "jenkins.cloud-devops-lab.xyz"
+  }
+
+}
+
+##########################################
+# SUBNETS PARAMS
+##########################################
+subnets = {
+
+  bastion-public-a = {
+    cidr_block              = "10.0.1.0/24"
+    availability_zone       = "ap-south-1a"
+    map_public_ip_on_launch = true
+    subnet_type             = "public"
+    route_table             = "public"
+  }
+
+  bastion-public-b = {
+    cidr_block              = "10.0.2.0/24"
+    availability_zone       = "ap-south-1b"
+    map_public_ip_on_launch = true
+    subnet_type             = "public"
+    route_table             = "public"
+  }
+
+  jenkins-private-a = {
+    cidr_block              = "10.0.3.0/24"
+    availability_zone       = "ap-south-1a"
+    map_public_ip_on_launch = true
+    subnet_type             = "private"
+    route_table             = "private"
+  }
+
+  eks-private-a = {
+    cidr_block              = "10.0.11.0/24"
+    availability_zone       = "ap-south-1a"
+    map_public_ip_on_launch = false
+    subnet_type             = "private"
+    route_table             = "private"
+  }
+
+  eks-private-b = {
+    cidr_block              = "10.0.12.0/24"
+    availability_zone       = "ap-south-1b"
+    map_public_ip_on_launch = false
+    subnet_type             = "private"
+    route_table             = "private"
+  }
+}
+
+####################################################
+# ROUTE TABLES PARAMS
+####################################################
+route_tables = {
+
+  public = {
+    route_type = "public"
+  }
+
+  private = {
+    route_type = "private"
+  }
+
+}
+
+#####################################################
+# ROUTES PARAMS
+#####################################################
+routes = {
+
+  public-internet = {
+
+    route_table = "public"
+    destination = "0.0.0.0/0"
+    target_type = "igw"
+  }
+
+  private-internet = {
+
+    route_table = "private"
+    destination = "0.0.0.0/0"
+    target_type = "nat"
+    target_name = "nat-a"
+  }
+}
+
+#######################################################
+# SECURITY GRP PARAMS
+#######################################################
+security_groups = {
+
+  bastion = {
+    description = "Bastion Security Group"
+  }
+  eks = {
+    description = "EKS Control Plane"
+  }
+  alb = {
+    description = "Application Load Balancer"
+  }
+  eks-nodes = {
+    description = "EKS Worker Nodes"
+  }
+  jenkins = {
+    description = "Private Jenkins Server"
+  }
+}
+
+#########################################################
+# SECURITY GRP RULES
+#########################################################
+security_group_rules = {
+
+  #####################################################
+  # BASTION SECURITY GROUP
+  #####################################################
+
+  bastion = {
+
+    ingress = {
+
+      ##########################################
+      # Home Network to Bastion Server (SSH)
+      ##########################################
+      ssh = {
+
+        description = "SSH from Home"
+
+        protocol = "tcp"
+        from_port = 22
+        to_port = 22
+
+        cidr_blocks = [
+          "103.49.53.216/32"
+        ]
+
+      }
+
+    }
+
+    egress = {
+
+      ##########################################
+      # Bastion Server to EKS Control Plane API
+      ##########################################
+      https = {
+
+        description = "HTTPS Outbound"
+
+        protocol = "tcp"
+
+        from_port = 443
+
+        to_port = 443
+
+        cidr_blocks = [
+          "0.0.0.0/0"
+        ]
+
+      }
+
+      ##########################################
+      # Bastion Server to Jenkins Private Server
+      ##########################################
+      ssh_jenkins = {
+
+        description = "SSH to Jenkins"
+
+        protocol = "tcp"
+
+        from_port = 22
+
+        to_port = 22
+
+        source_security_group = "jenkins"
+
+      }
+
+    }
+
+  }
+
+  #####################################################
+  # APPLICATION LOAD BALANCER
+  #####################################################
+
+  alb = {
+
+    ingress = {
+
+      ##########################################
+      # Internet Users to ALB (HTTP)
+      ##########################################
+      http = {
+
+        description = "HTTP"
+
+        protocol = "tcp"
+
+        from_port = 80
+
+        to_port = 80
+
+        cidr_blocks = [
+          "0.0.0.0/0"
+        ]
+
+      }
+
+      ##########################################
+      # Internet Users to ALB (HTTPS)
+      ##########################################
+      https = {
+
+        description = "HTTPS"
+
+        protocol = "tcp"
+
+        from_port = 443
+
+        to_port = 443
+
+        cidr_blocks = [
+          "0.0.0.0/0"
+        ]
+
+      }
+
+    }
+
+    egress = {
+
+      ##########################################
+      # ALB to EKS Worker NodePort Services
+      ##########################################
+      eks_nodes = {
+
+        description = "Traffic to Worker Nodes"
+
+        protocol = "tcp"
+
+        from_port = 30000
+
+        to_port = 32767
+
+        source_security_group = "eks-nodes"
+
+      }
+
+      ##########################################
+      # ALB to Jenkins Private Server
+      ##########################################
+      jenkins = {
+
+        description = "Forward traffic to Jenkins"
+
+        protocol = "tcp"
+
+        from_port = 8080
+
+        to_port = 8080
+
+        source_security_group = "jenkins"
+
+      }
+
+    }
+
+  }
+
+  #####################################################
+  # JENKINS SECURITY GROUP
+  #####################################################
+
+  jenkins = {
+
+    ingress = {
+
+      ##########################################
+      # ALB to Jenkins Web Application
+      ##########################################
+      alb = {
+
+        description = "HTTP from ALB"
+
+        protocol = "tcp"
+
+        from_port = 8080
+
+        to_port = 8080
+
+        source_security_group = "alb"
+
+      }
+
+      ##########################################
+      # Bastion Server to Jenkins SSH
+      ##########################################
+      ssh = {
+
+        description = "SSH from Bastion"
+
+        protocol = "tcp"
+
+        from_port = 22
+
+        to_port = 22
+
+        source_security_group = "bastion"
+
+      }
+
+    }
+
+    egress = {
+
+      ##########################################
+      # Jenkins Server to Internet Services
+      # GitHub, Docker Hub, S3, CloudWatch,
+      # Jenkins Plugins, Slack, Teams, etc.
+      ##########################################
+      https = {
+
+        description = "HTTPS Outbound"
+
+        protocol = "tcp"
+
+        from_port = 443
+
+        to_port = 443
+
+        cidr_blocks = [
+          "0.0.0.0/0"
+        ]
+
+      }
+
+    }
+
+  }
+
+  #####################################################
+  # EKS CONTROL PLANE
+  #####################################################
+
+  eks = {
+
+    ingress = {
+
+      ##########################################
+      # Bastion Server to EKS Control Plane API
+      ##########################################
+      api_from_bastion = {
+
+        description = "Bastion to EKS API"
+
+        protocol = "tcp"
+
+        from_port = 443
+
+        to_port = 443
+
+        source_security_group = "bastion"
+
+      }
+
+    }
+
+    egress = {
+
+      ##########################################
+      # EKS Control Plane to Internet Services
+      ##########################################
+      https = {
+
+        description = "HTTPS Outbound"
+
+        protocol = "tcp"
+
+        from_port = 443
+
+        to_port = 443
+
+        cidr_blocks = [
+          "0.0.0.0/0"
+        ]
+
+      }
+
+    }
+
+  }
+
+}
+
+
+########################################################
+# ROLES VARIABLES
+########################################################
+roles = {
+
+  bastion = {
+    description = "Bastion EC2 Role"
+    trusted_services = [
+      "ec2"
+    ]
+  }
+
+
+  jenkins = {
+
+    description = "Jenkins EC2 Role"
+    trusted_services = [
+      "ec2"
+    ]
+  }
+
+  eks = {
+
+    description = "EKS IAM Role"
+    trusted_services = [
+      "eks"
+    ]
+  }
+
+  eks-node = {
+
+    description = "EKS Worker Node Role"
+    trusted_services = [
+      "ec2"
+    ]
+  }
+
+}
+
+
+########################################################
+# POLICY VARIABLES
+########################################################
+policies = {
+
+  bastion-ssm = {
+    description = "Bastion SSM Access"
+    policy_file = "../../policies/bastion-ssm.json"
+  }
+
+
+  alb-controller = {
+    description = "AWS Load Balancer Controller Policy"
+    policy_file = "../../policies/alb-controller.json"
+  }
+
+
+  ecr = {
+    description = "Jenkins ECR Push Pull Access"
+    policy_file = "../../policies/ecr-policy.json"
+  }
+
+
+  cloudwatch-agent = {
+    description = "CloudWatch Agent Permissions"
+    policy_file = "../../policies/cloudwatch-agent.json"
+  }
+
+}
+
+##############################################################
+# ROLE POLICY ATTACHMENTS
+##############################################################
+attachments = {
+
+
+  bastion = {
+
+    role = "bastion"
+    custom_policies = [
+      "bastion-ssm"
+    ]
+
+    managed_policies = [
+      "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+    ]
+  }
+
+  jenkins = {
+
+    role = "jenkins"
+    custom_policies = [
+      "ecr",
+      "cloudwatch-agent"
+    ]
+    managed_policies = [
+      "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+    ]
+  }
+
+  eks = {
+
+    role            = "eks"
+    custom_policies = []
+    managed_policies = [
+      "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
+    ]
+  }
+
+  eks-node = {
+
+    role            = "eks-node"
+    custom_policies = []
+    managed_policies = [
+      "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy",
+      "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPullOnly",
+      "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+    ]
+  }
+}
+
+
+##############################################################
+# INSTANCE PROFILES PARAMS
+##############################################################
+##############################################################
+# INSTANCE PROFILES
+##############################################################
+instance_profiles = {
+
+  bastion = {
+    role = "bastion"
+  }
+
+  jenkins = {
+    role = "jenkins"
+  }
+
+  eks-node = {
+    role = "eks-node"
+  }
+}
+
+#########################################################
+# AMI LOOKUPS PARAMS
+#########################################################
+
+amis = {
+
+  amazon-linux-2023 = {
+
+    owners = [
+      "amazon"
+    ]
+
+    filters = [
+
+      {
+
+        name = "name"
+        values = [
+          "al2023-ami-2023*-x86_64"
+        ]
+      },
+
+      {
+
+        name = "state"
+        values = [
+          "available"
+        ]
+      }
+
+    ]
+
+  }
+
+  ubuntu-22 = {
+
+    owners = [
+      "099720109477"
+    ]
+
+    filters = [
+
+      {
+        name = "name"
+        values = [
+          "ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"
+        ]
+      },
+
+      {
+        name = "virtualization-type"
+        values = [
+          "hvm"
+        ]
+      }
+    ]
+  }
+}
+
+
+#########################################################
+# EC2 PUBLIC INSTANCES
+#########################################################
+public_instances = {
+
+  bastion = {
+
+    ami           = "amazon-linux-2023"
+    instance_type = "m7i-flex.large"
+    subnet        = "bastion-public-a"
+    security_groups = [
+      "bastion"
+    ]
+    iam_instance_profile    = "bastion"
+    key_name                = "dev-bastion-kp"
+    associate_public_ip     = true
+    monitoring              = true
+    disable_api_termination = false
+    ebs_optimized           = false
+    user_data_file          = "../../userdata/bastion.sh"
+    root_volume = {
+      size                  = 20
+      type                  = "gp3"
+      encrypted             = true
+      delete_on_termination = true
+    }
+    tags = {
+      Role = "Bastion"
+    }
+  }
+
+}
+
+#########################################################
+# EC2 PRIVATE INSTANCES
+#########################################################
+private_instances = {
+
+  jenkins = {
+
+    ami           = "amazon-linux-2023"
+    instance_type = "m7i-flex.large"
+    subnet        = "jenkins-private-a"
+
+    security_groups = [
+      "jenkins"
+    ]
+
+    iam_instance_profile    = "bastion"
+    key_name                = "dev-bastion-kp"
+    associate_public_ip     = false
+    monitoring              = true
+    disable_api_termination = false
+    ebs_optimized           = false
+    user_data_file          = "../../userdata/bastion.sh"
+
+    root_volume = {
+      size                  = 20
+      type                  = "gp3"
+      encrypted             = true
+      delete_on_termination = true
+    }
+
+    tags = {
+      Role = "Jenkins-Master"
+    }
+
+  }
+
+}
+
+
+#######################################################
+# EBS PUBLIC VOLUMES
+#######################################################
+
+ebs_volumes = {
+
+  bastion-data = {
+
+    availability_zone = "ap-south-1a"
+    size              = 3
+    type              = "gp3"
+    encrypted         = true
+    throughput        = 125
+    iops              = 3000
+  }
+
+  jenkins-data = {
+
+    availability_zone = "ap-south-1a"
+    size              = 3
+    type              = "gp3"
+    encrypted         = true
+    throughput        = 125
+    iops              = 3000
+  }
+
+}
+
+#########################################################
+# EBS VOLUME ATTACHMENTS
+#########################################################
+volume_attachments = {
+
+  #####################################################
+  # Bastion Server
+  #####################################################
+
+  bastion-data = {
+
+    instance    = "bastion"
+    volume      = "bastion-data"
+    device_name = "/dev/xvdf"
+
+  }
+
+  #####################################################
+  # Jenkins Server
+  #####################################################
+
+  jenkins-data = {
+
+    instance    = "jenkins"
+    volume      = "jenkins-data"
+    device_name = "/dev/xvdf"
+
+  }
+
+}
+
+#########################################################
+# EKS CLUSTERS
+#########################################################
+
+eks_clusters = {
+
+  boutique-dev = {
+
+    version = "1.33"
+    role    = "eks"
+    security_groups = [
+      "eks"
+    ]
+
+    endpoint_private_access = true
+    endpoint_public_access  = true
+    enabled_cluster_log_types = [
+      "api",
+      "audit"
+    ]
+
+    tags = {
+      Application = "platform"
+    }
+  }
+
+}
+
+#########################################################
+# EKS NODE GROUPS
+#########################################################
+
+eks_node_groups = {
+
+  system = {
+
+    cluster     = "boutique-dev"
+    role        = "eks-node"
+    subnet_type = "private"
+    instance_types = [
+      "m7i-flex.large"
+    ]
+
+    capacity_type = "ON_DEMAND"
+    ami_type      = "AL2023_x86_64_STANDARD"
+    disk_size     = 20
+    scaling = {
+      desired = 2
+      minimum = 2
+      maximum = 2
+    }
+
+    labels = {
+      workload = "system"
+    }
+
+    tags = {
+      Team = "Platform"
+    }
+  }
+}
+
+#########################################################
+# EKS ACCESS
+#########################################################
+
+access_entries = {
+
+  bastion = {
+    cluster       = "boutique-dev"
+    principal_arn = "arn:aws:iam::792811916240:role/bastion"
+    policy_associations = {
+      admin = {
+        policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+        access_scope = {
+          type = "cluster"
+        }
+      }
+    }
+  }
+}
+
+#########################################################
+# ALB
+#########################################################
+
+#load_balancers = {
+
+#  app-alb = {
+
+#    internal           = false
+#    load_balancer_type = "application"
+
+#    subnet_group   = "public"
+#    security_group = "alb"
+
+#    listener = {
+
+#      port     = 80
+#      protocol = "HTTP"
+
+#    }
+
+#    target_group = {
+
+#      name        = "app-tg"
+#      port        = 8080
+#      protocol    = "HTTP"
+#      target_type = "instance"
+#      health_check = {
+#        enabled             = true
+#        path                = "/health"
+#        matcher             = "200"
+#        interval            = 30
+#        timeout             = 5
+#        healthy_threshold   = 2
+#        unhealthy_threshold = 2
+#      }
+
+#    }
+
+#    enable_deletion_protection = false
+
+#  }
+
+#}
+
+
+#########################################################
+# IRSA ROLES
+#########################################################
+
+irsa_roles = {
+
+  alb-controller = {
+
+    description     = "AWS Load Balancer Controller"
+    namespace       = "kube-system"
+    service_account = "aws-load-balancer-controller"
+    custom_policies = [
+      "alb-controller"
+    ]
+  }
+}
+
+
+#########################################################
+# SNS TOPICS
+#########################################################
+
+sns_topics = {
+
+  cloudwatch-alerts = {
+    display_name = "CloudWatch Alerts"
+  }
+
+}
+
+#########################################################
+# SNS SUBSCRIPTIONS
+#########################################################
+
+sns_subscriptions = {
+
+  admin-email = {
+
+    topic    = "cloudwatch-alerts"
+    protocol = "email"
+    endpoint = "kalyansurya403@gmail.com"
+
+  }
+
+}
+
+#########################################################
+# CLOUDWATCH LOG GROUPS
+#########################################################
+
+log_groups = {
+
+  bastion = {
+
+    name              = "/aws/ec2/bastion"
+    retention_in_days = 30
+
+  }
+
+  eks = {
+
+    name              = "/aws/eks/dev"
+    retention_in_days = 30
+
+  }
+
+  argocd = {
+
+    name              = "/aws/application/argocd"
+    retention_in_days = 30
+
+  }
+
+  prometheus = {
+
+    name              = "/aws/application/prometheus"
+    retention_in_days = 30
+
+  }
+
+  grafana = {
+
+    name              = "/aws/application/grafana"
+    retention_in_days = 30
+
+  }
+
+  sonarqube = {
+
+    name              = "/aws/application/sonarqube"
+    retention_in_days = 30
+
+  }
+
+  trivy = {
+
+    name              = "/aws/application/trivy"
+    retention_in_days = 30
+
+  }
+
+  fluent-bit = {
+
+    name              = "/aws/application/fluent-bit"
+    retention_in_days = 30
+
+  }
+
+}
+
+#########################################################
+# CLOUD WATCH METRIC ALARMS
+#########################################################
+metric_alarms = {
+
+  jenkins-cpu = {
+
+    comparison_operator = "GreaterThanThreshold"
+    evaluation_periods  = 2
+
+    metric_name = "CPUUtilization"
+    namespace   = "AWS/EC2"
+
+    period    = 300
+    statistic = "Average"
+
+    threshold = 80
+
+    dimensions = {
+      ec2_module = "private"
+      instance   = "jenkins"
+    }
+
+    sns_topic = "cloudwatch-alerts"
+  }
+
+}
+
+
+#########################################################
+# CLOUD AGENTS
+#########################################################
+cloudwatch_agents = {
+
+  jenkins = {
+
+    instance_id = ""
+    config_name = "jenkins"
+
+  }
+
+}
+
+#########################################################
+# CLOUD DASHBOARD
+#########################################################
+#########################################################
+# CLOUDWATCH DASHBOARDS
+#########################################################
+dashboards = {
+
+  jenkins = {
+
+    dashboard_name = "dev-jenkins"
+    template       = "jenkins"
+
+  }
+
+}
+
+
+########################################################################################################################
+#                                                     ECR VARS                                                         #
+########################################################################################################################
+ecr_repositories = {
+
+  boutique-frontend = {
+    image_tag_mutability = "MUTABLE"
+    scan_on_push         = true
+  }
+
+  boutique-backend = {
+    image_tag_mutability = "MUTABLE"
+    scan_on_push         = true
+  }
+
+}
+
+########################################################################################################################
+#                                                     ALB VARS                                                         #
+########################################################################################################################
+
+#########################################################
+# TARGET GROUPS
+#########################################################
+target_groups = {
+
+  #####################################################
+  # Jenkins
+  #####################################################
+
+  jenkins = {
+
+    vpc                      = "main"
+    target_type              = "instance"
+    protocol                 = "HTTP"
+    port                     = 8080
+    deregistration_delay     = 300
+    load_balancing_algorithm = "round_robin"
+    health_check = {
+      enabled             = true
+      protocol            = "HTTP"
+      path                = "/login"
+      port                = "traffic-port"
+      interval            = 30
+      timeout             = 5
+      healthy_threshold   = 3
+      unhealthy_threshold = 2
+      matcher             = "200"
+    }
+  }
+}
+
+
+#########################################################
+# APPLICATION LOAD BALANCERS
+#########################################################
+
+load_balancers = {
+
+  jenkins = {
+
+    #####################################################
+    # General
+    #####################################################
+
+    name               = "jenkins-alb"
+    load_balancer_type = "application"
+    internal           = false
+    ip_address_type    = "ipv4"
+
+    #####################################################
+    # Networking
+    #####################################################
+
+    security_groups = [
+      "alb"
+    ]
+
+    subnets = [
+      "bastion-public-a",
+      "bastion-public-b"
+    ]
+
+    #####################################################
+    # Features
+    #####################################################
+
+    idle_timeout                     = 60
+    enable_http2                     = true
+    enable_cross_zone_load_balancing = true
+    enable_deletion_protection       = false
+    drop_invalid_header_fields       = true
+
+    #####################################################
+    # Tags
+    #####################################################
+
+    tags = {
+
+      Application = "Jenkins"
+
+    }
+  }
+
+  app-alb = {
+
+    name               = "app-alb"
+    load_balancer_type = "application"
+    internal           = false
+    ip_address_type    = "ipv4"
+
+    security_groups = [
+      "alb"
+    ]
+
+    subnets = [
+      "bastion-public-a",
+      "bastion-public-b"
+    ]
+
+    idle_timeout                     = 60
+    enable_http2                     = true
+    enable_cross_zone_load_balancing = true
+    enable_deletion_protection       = false
+    drop_invalid_header_fields       = true
+
+    tags = {
+      Application = "Application"
+    }
+
+  }
+
+}
+
+#########################################################
+# LOAD BALANCER LISTENERS
+#########################################################
+
+listeners = {
+
+  #######################################################
+  # Jenkins HTTP Listener
+  #######################################################
+
+  jenkins-http = {
+
+    #####################################################
+    # Load Balancer
+    #####################################################
+
+    load_balancer = "jenkins"
+
+    #####################################################
+    # Listener
+    #####################################################
+
+    port     = 80
+    protocol = "HTTP"
+
+    #####################################################
+    # Default Action
+    #####################################################
+
+    default_action = {
+
+      type         = "forward"
+      target_group = "jenkins"
+
+    }
+
+  }
+
+}
+
+
+#########################################################
+# TARGET GROUP ATTACHMENTS
+#########################################################
+
+target_group_attachments = {
+
+  #######################################################
+  # Jenkins EC2
+  #######################################################
+
+  jenkins = {
+
+    ##########################################
+    # Target Group
+    ##########################################
+
+    target_group = "jenkins"
+
+    ##########################################
+    # EC2 Instance
+    ##########################################
+
+    instance = "jenkins"
+
+    ##########################################
+    # Application Port
+    ##########################################
+
+    port = 8080
+
+  }
+
+}
+
+
+
+

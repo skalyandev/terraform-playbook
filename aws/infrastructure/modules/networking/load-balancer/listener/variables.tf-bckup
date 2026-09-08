@@ -1,0 +1,63 @@
+#########################################################
+# LISTENERS
+#########################################################
+
+variable "listeners" {
+
+  description = "Load Balancer Listeners"
+
+  type = map(object({
+
+    load_balancer = string
+
+    port     = number
+    protocol = string
+
+    default_action = object({
+
+      type         = string
+      target_group = string
+
+    })
+
+  }))
+
+}
+
+#########################################################
+# LOAD BALANCER ARNS
+#########################################################
+
+variable "load_balancer_arns" {
+
+  description = "Map of ALB ARNs"
+
+  type = map(string)
+
+}
+
+#########################################################
+# TARGET GROUP ARNS
+#########################################################
+
+variable "target_group_arns" {
+
+  description = "Map of Target Group ARNs"
+
+  type = map(string)
+
+}
+
+
+##########################################################
+# ACM CERTIFICATES
+##########################################################
+variable "certificate_arn" {
+  description = "ACM certificate ARN"
+  type        = string
+}
+
+
+
+
+

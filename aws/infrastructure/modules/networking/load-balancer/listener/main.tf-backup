@@ -1,0 +1,38 @@
+#########################################################
+# LOAD BALANCER LISTENERS
+#########################################################
+
+resource "aws_lb_listener" "this" {
+
+  for_each = var.listeners
+
+  #######################################################
+  # LOAD BALANCER
+  #######################################################
+
+  load_balancer_arn = var.load_balancer_arns[
+    each.value.load_balancer
+  ]
+
+  #######################################################
+  # LISTENER
+  #######################################################
+
+  port     = each.value.port
+  protocol = each.value.protocol
+
+  #######################################################
+  # DEFAULT ACTION
+  #######################################################
+
+  default_action {
+
+    type = each.value.default_action.type
+
+    target_group_arn = var.target_group_arns[
+      each.value.default_action.target_group
+    ]
+
+  }
+
+}
