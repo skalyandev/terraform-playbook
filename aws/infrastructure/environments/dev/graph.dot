@@ -1,20 +1,145 @@
 digraph G {
   rankdir = "RL";
   node [shape = rect, fontname = "sans-serif"];
+  "data.aws_caller_identity.current" [label="data.aws_caller_identity.current"];
+  "data.aws_iam_policy_document.aws_config_s3" [label="data.aws_iam_policy_document.aws_config_s3"];
+  "data.aws_iam_policy_document.cloudtrail_s3" [label="data.aws_iam_policy_document.cloudtrail_s3"];
+  "aws_s3_bucket_policy.aws_config" [label="aws_s3_bucket_policy.aws_config"];
+  "aws_s3_bucket_policy.cloudtrail" [label="aws_s3_bucket_policy.cloudtrail"];
+  subgraph "cluster_module.acm" {
+    label = "module.acm"
+    fontname = "sans-serif"
+    "module.acm.aws_acm_certificate.this" [label="aws_acm_certificate.this"];
+    "module.acm.aws_acm_certificate_validation.this" [label="aws_acm_certificate_validation.this"];
+    "module.acm.aws_route53_record.validation" [label="aws_route53_record.validation"];
+  }
   subgraph "cluster_module.amis" {
     label = "module.amis"
     fontname = "sans-serif"
     "module.amis.data.aws_ami.this" [label="data.aws_ami.this"];
   }
-  subgraph "cluster_module.ec2" {
-    label = "module.ec2"
+  subgraph "cluster_module.aws_config" {
+    label = "module.aws_config"
     fontname = "sans-serif"
-    "module.ec2.aws_instance.this" [label="aws_instance.this"];
+    "module.aws_config.aws_config_configuration_recorder.this" [label="aws_config_configuration_recorder.this"];
+    "module.aws_config.aws_config_configuration_recorder_status.this" [label="aws_config_configuration_recorder_status.this"];
+    "module.aws_config.aws_config_delivery_channel.this" [label="aws_config_delivery_channel.this"];
+  }
+  subgraph "cluster_module.aws_config_remediation" {
+    label = "module.aws_config_remediation"
+    fontname = "sans-serif"
+    "module.aws_config_remediation.aws_config_remediation_configuration.this" [label="aws_config_remediation_configuration.this"];
+  }
+  subgraph "cluster_module.aws_config_rules" {
+    label = "module.aws_config_rules"
+    fontname = "sans-serif"
+    "module.aws_config_rules.aws_config_config_rule.this" [label="aws_config_config_rule.this"];
+  }
+  subgraph "cluster_module.aws_load_balancer_controller" {
+    label = "module.aws_load_balancer_controller"
+    fontname = "sans-serif"
+    "module.aws_load_balancer_controller.data.aws_caller_identity.current" [label="data.aws_caller_identity.current"];
+    "module.aws_load_balancer_controller.data.aws_iam_policy_document.assume_role" [label="data.aws_iam_policy_document.assume_role"];
+    "module.aws_load_balancer_controller.data.aws_partition.current" [label="data.aws_partition.current"];
+    "module.aws_load_balancer_controller.data.aws_region.current" [label="data.aws_region.current"];
+    "module.aws_load_balancer_controller.aws_iam_policy.this" [label="aws_iam_policy.this"];
+    "module.aws_load_balancer_controller.aws_iam_role.this" [label="aws_iam_role.this"];
+    "module.aws_load_balancer_controller.aws_iam_role_policy_attachment.this" [label="aws_iam_role_policy_attachment.this"];
+    "module.aws_load_balancer_controller.helm_release.aws_load_balancer_controller" [label="helm_release.aws_load_balancer_controller"];
+    "module.aws_load_balancer_controller.kubernetes_service_account.this" [label="kubernetes_service_account.this"];
+  }
+  subgraph "cluster_module.cloudtrail" {
+    label = "module.cloudtrail"
+    fontname = "sans-serif"
+    "module.cloudtrail.aws_cloudtrail.this" [label="aws_cloudtrail.this"];
+  }
+  subgraph "cluster_module.cloudwatch_agents" {
+    label = "module.cloudwatch_agents"
+    fontname = "sans-serif"
+    "module.cloudwatch_agents.aws_ssm_association.configure" [label="aws_ssm_association.configure"];
+    "module.cloudwatch_agents.aws_ssm_association.install" [label="aws_ssm_association.install"];
+    "module.cloudwatch_agents.aws_ssm_document.install" [label="aws_ssm_document.install"];
+    "module.cloudwatch_agents.aws_ssm_parameter.config" [label="aws_ssm_parameter.config"];
+  }
+  subgraph "cluster_module.cloudwatch_composite_alarms" {
+    label = "module.cloudwatch_composite_alarms"
+    fontname = "sans-serif"
+    "module.cloudwatch_composite_alarms.aws_cloudwatch_composite_alarm.this" [label="aws_cloudwatch_composite_alarm.this"];
+  }
+  subgraph "cluster_module.cloudwatch_dashboards" {
+    label = "module.cloudwatch_dashboards"
+    fontname = "sans-serif"
+    "module.cloudwatch_dashboards.aws_cloudwatch_dashboard.this" [label="aws_cloudwatch_dashboard.this"];
+  }
+  subgraph "cluster_module.cloudwatch_log_groups" {
+    label = "module.cloudwatch_log_groups"
+    fontname = "sans-serif"
+    "module.cloudwatch_log_groups.aws_cloudwatch_log_group.this" [label="aws_cloudwatch_log_group.this"];
+  }
+  subgraph "cluster_module.cloudwatch_log_metric_filters" {
+    label = "module.cloudwatch_log_metric_filters"
+    fontname = "sans-serif"
+    "module.cloudwatch_log_metric_filters.aws_cloudwatch_log_metric_filter.this" [label="aws_cloudwatch_log_metric_filter.this"];
+  }
+  subgraph "cluster_module.cloudwatch_metric_alarms" {
+    label = "module.cloudwatch_metric_alarms"
+    fontname = "sans-serif"
+    "module.cloudwatch_metric_alarms.aws_cloudwatch_metric_alarm.this" [label="aws_cloudwatch_metric_alarm.this"];
+  }
+  subgraph "cluster_module.cluster_autoscaler" {
+    label = "module.cluster_autoscaler"
+    fontname = "sans-serif"
+    "module.cluster_autoscaler.data.aws_region.current" [label="data.aws_region.current"];
+    "module.cluster_autoscaler.aws_iam_policy.this" [label="aws_iam_policy.this"];
+    "module.cluster_autoscaler.aws_iam_role.this" [label="aws_iam_role.this"];
+    "module.cluster_autoscaler.aws_iam_role_policy_attachment.this" [label="aws_iam_role_policy_attachment.this"];
+    "module.cluster_autoscaler.helm_release.this" [label="helm_release.this"];
+    "module.cluster_autoscaler.kubernetes_service_account.this" [label="kubernetes_service_account.this"];
+  }
+  subgraph "cluster_module.ebs" {
+    label = "module.ebs"
+    fontname = "sans-serif"
+    "module.ebs.aws_ebs_volume.this" [label="aws_ebs_volume.this"];
+  }
+  subgraph "cluster_module.ebs_csi" {
+    label = "module.ebs_csi"
+    fontname = "sans-serif"
+    "module.ebs_csi.aws_eks_addon.this" [label="aws_eks_addon.this"];
+    "module.ebs_csi.aws_iam_policy.this" [label="aws_iam_policy.this"];
+    "module.ebs_csi.aws_iam_role.this" [label="aws_iam_role.this"];
+    "module.ebs_csi.aws_iam_role_policy_attachment.this" [label="aws_iam_role_policy_attachment.this"];
+  }
+  subgraph "cluster_module.ecr" {
+    label = "module.ecr"
+    fontname = "sans-serif"
+    "module.ecr.aws_ecr_lifecycle_policy.this" [label="aws_ecr_lifecycle_policy.this"];
+    "module.ecr.aws_ecr_repository.this" [label="aws_ecr_repository.this"];
+  }
+  subgraph "cluster_module.efs_csi" {
+    label = "module.efs_csi"
+    fontname = "sans-serif"
+    "module.efs_csi.aws_eks_addon.this" [label="aws_eks_addon.this"];
+    "module.efs_csi.aws_iam_policy.this" [label="aws_iam_policy.this"];
+    "module.efs_csi.aws_iam_role.this" [label="aws_iam_role.this"];
+    "module.efs_csi.aws_iam_role_policy_attachment.this" [label="aws_iam_role_policy_attachment.this"];
+  }
+  subgraph "cluster_module.eks_access" {
+    label = "module.eks_access"
+    fontname = "sans-serif"
+    "module.eks_access.aws_eks_access_entry.this" [label="aws_eks_access_entry.this"];
+    "module.eks_access.aws_eks_access_policy_association.this" [label="aws_eks_access_policy_association.this"];
+  }
+  subgraph "cluster_module.eks_addons" {
+    label = "module.eks_addons"
+    fontname = "sans-serif"
+    "module.eks_addons.aws_eks_addon.this" [label="aws_eks_addon.this"];
   }
   subgraph "cluster_module.eks_cluster" {
     label = "module.eks_cluster"
     fontname = "sans-serif"
+    "module.eks_cluster.data.tls_certificate.eks" [label="data.tls_certificate.eks"];
     "module.eks_cluster.aws_eks_cluster.this" [label="aws_eks_cluster.this"];
+    "module.eks_cluster.aws_iam_openid_connect_provider.this" [label="aws_iam_openid_connect_provider.this"];
   }
   subgraph "cluster_module.eks_node_groups" {
     label = "module.eks_node_groups"
@@ -25,6 +150,24 @@ digraph G {
     label = "module.elastic_ip"
     fontname = "sans-serif"
     "module.elastic_ip.aws_eip.this" [label="aws_eip.this"];
+  }
+  subgraph "cluster_module.external_dns" {
+    label = "module.external_dns"
+    fontname = "sans-serif"
+    "module.external_dns.data.aws_iam_policy_document.external_dns_assume_role" [label="data.aws_iam_policy_document.external_dns_assume_role"];
+    "module.external_dns.aws_iam_policy.external_dns" [label="aws_iam_policy.external_dns"];
+    "module.external_dns.aws_iam_role.external_dns" [label="aws_iam_role.external_dns"];
+    "module.external_dns.aws_iam_role_policy_attachment.external_dns" [label="aws_iam_role_policy_attachment.external_dns"];
+    "module.external_dns.helm_release.external_dns" [label="helm_release.external_dns"];
+    "module.external_dns.kubernetes_service_account_v1.external_dns" [label="kubernetes_service_account_v1.external_dns"];
+  }
+  subgraph "cluster_module.fluent_bit" {
+    label = "module.fluent_bit"
+    fontname = "sans-serif"
+    "module.fluent_bit.kubernetes_config_map.this" [label="kubernetes_config_map.this"];
+    "module.fluent_bit.kubernetes_daemon_set_v1.this" [label="kubernetes_daemon_set_v1.this"];
+    "module.fluent_bit.kubernetes_namespace.this" [label="kubernetes_namespace.this"];
+    "module.fluent_bit.kubernetes_service_account.this" [label="kubernetes_service_account.this"];
   }
   subgraph "cluster_module.iam_policies" {
     label = "module.iam_policies"
@@ -47,16 +190,73 @@ digraph G {
     fontname = "sans-serif"
     "module.instance_profiles.aws_iam_instance_profile.this" [label="aws_iam_instance_profile.this"];
   }
+  subgraph "cluster_module.irsa" {
+    label = "module.irsa"
+    fontname = "sans-serif"
+    "module.irsa.data.aws_iam_policy_document.trust" [label="data.aws_iam_policy_document.trust"];
+    "module.irsa.aws_iam_role.this" [label="aws_iam_role.this"];
+    "module.irsa.aws_iam_role_policy_attachment.custom" [label="aws_iam_role_policy_attachment.custom"];
+  }
+  subgraph "cluster_module.listeners" {
+    label = "module.listeners"
+    fontname = "sans-serif"
+    "module.listeners.aws_lb_listener.this" [label="aws_lb_listener.this"];
+  }
+  subgraph "cluster_module.load_balancers" {
+    label = "module.load_balancers"
+    fontname = "sans-serif"
+    "module.load_balancers.aws_lb.this" [label="aws_lb.this"];
+  }
   subgraph "cluster_module.nat_gateway" {
     label = "module.nat_gateway"
     fontname = "sans-serif"
     "module.nat_gateway.aws_nat_gateway.this" [label="aws_nat_gateway.this"];
+  }
+  subgraph "cluster_module.oidc_provider" {
+    label = "module.oidc_provider"
+    fontname = "sans-serif"
+    "module.oidc_provider.data.tls_certificate.this" [label="data.tls_certificate.this"];
+    "module.oidc_provider.aws_iam_openid_connect_provider.this" [label="aws_iam_openid_connect_provider.this"];
+  }
+  subgraph "cluster_module.opentelemetry" {
+    label = "module.opentelemetry"
+    fontname = "sans-serif"
+    "module.opentelemetry.kubernetes_config_map.this" [label="kubernetes_config_map.this"];
+    "module.opentelemetry.kubernetes_deployment_v1.this" [label="kubernetes_deployment_v1.this"];
+    "module.opentelemetry.kubernetes_namespace.this" [label="kubernetes_namespace.this"];
+    "module.opentelemetry.kubernetes_service_account.this" [label="kubernetes_service_account.this"];
+    "module.opentelemetry.kubernetes_service_v1.this" [label="kubernetes_service_v1.this"];
+  }
+  subgraph "cluster_module.pod_autoscaler" {
+    label = "module.pod_autoscaler"
+    fontname = "sans-serif"
+    "module.pod_autoscaler.helm_release.this" [label="helm_release.this"];
+  }
+  subgraph "cluster_module.private_ec2" {
+    label = "module.private_ec2"
+    fontname = "sans-serif"
+    "module.private_ec2.aws_instance.this" [label="aws_instance.this"];
+  }
+  subgraph "cluster_module.public_ec2" {
+    label = "module.public_ec2"
+    fontname = "sans-serif"
+    "module.public_ec2.aws_instance.this" [label="aws_instance.this"];
   }
   subgraph "cluster_module.role_policy_attachments" {
     label = "module.role_policy_attachments"
     fontname = "sans-serif"
     "module.role_policy_attachments.aws_iam_role_policy_attachment.custom" [label="aws_iam_role_policy_attachment.custom"];
     "module.role_policy_attachments.aws_iam_role_policy_attachment.managed" [label="aws_iam_role_policy_attachment.managed"];
+  }
+  subgraph "cluster_module.route53_hosted_zone" {
+    label = "module.route53_hosted_zone"
+    fontname = "sans-serif"
+    "module.route53_hosted_zone.aws_route53_zone.this" [label="aws_route53_zone.this"];
+  }
+  subgraph "cluster_module.route53_record" {
+    label = "module.route53_record"
+    fontname = "sans-serif"
+    "module.route53_record.aws_route53_record.this" [label="aws_route53_record.this"];
   }
   subgraph "cluster_module.route_table_associations" {
     label = "module.route_table_associations"
@@ -73,6 +273,16 @@ digraph G {
     fontname = "sans-serif"
     "module.routes.aws_route.this" [label="aws_route.this"];
   }
+  subgraph "cluster_module.s3_buckets" {
+    label = "module.s3_buckets"
+    fontname = "sans-serif"
+    "module.s3_buckets.aws_s3_bucket.this" [label="aws_s3_bucket.this"];
+    "module.s3_buckets.aws_s3_bucket_ownership_controls.this" [label="aws_s3_bucket_ownership_controls.this"];
+    "module.s3_buckets.aws_s3_bucket_policy.this" [label="aws_s3_bucket_policy.this"];
+    "module.s3_buckets.aws_s3_bucket_public_access_block.this" [label="aws_s3_bucket_public_access_block.this"];
+    "module.s3_buckets.aws_s3_bucket_server_side_encryption_configuration.this" [label="aws_s3_bucket_server_side_encryption_configuration.this"];
+    "module.s3_buckets.aws_s3_bucket_versioning.this" [label="aws_s3_bucket_versioning.this"];
+  }
   subgraph "cluster_module.security_group_rules" {
     label = "module.security_group_rules"
     fontname = "sans-serif"
@@ -87,43 +297,200 @@ digraph G {
     fontname = "sans-serif"
     "module.security_groups.aws_security_group.this" [label="aws_security_group.this"];
   }
+  subgraph "cluster_module.security_hub" {
+    label = "module.security_hub"
+    fontname = "sans-serif"
+    "module.security_hub.data.aws_region.current" [label="data.aws_region.current"];
+    "module.security_hub.aws_securityhub_account.this" [label="aws_securityhub_account.this"];
+    "module.security_hub.aws_securityhub_standards_subscription.aws_foundational" [label="aws_securityhub_standards_subscription.aws_foundational"];
+    "module.security_hub.aws_securityhub_standards_subscription.cis" [label="aws_securityhub_standards_subscription.cis"];
+    "module.security_hub.aws_securityhub_standards_subscription.pci_dss" [label="aws_securityhub_standards_subscription.pci_dss"];
+  }
+  subgraph "cluster_module.sns_subscriptions" {
+    label = "module.sns_subscriptions"
+    fontname = "sans-serif"
+    "module.sns_subscriptions.aws_sns_topic_subscription.this" [label="aws_sns_topic_subscription.this"];
+  }
+  subgraph "cluster_module.sns_topics" {
+    label = "module.sns_topics"
+    fontname = "sans-serif"
+    "module.sns_topics.aws_sns_topic.this" [label="aws_sns_topic.this"];
+  }
   subgraph "cluster_module.subnets" {
     label = "module.subnets"
     fontname = "sans-serif"
     "module.subnets.aws_subnet.this" [label="aws_subnet.this"];
+  }
+  subgraph "cluster_module.target_group_attachments" {
+    label = "module.target_group_attachments"
+    fontname = "sans-serif"
+    "module.target_group_attachments.aws_lb_target_group_attachment.this" [label="aws_lb_target_group_attachment.this"];
+  }
+  subgraph "cluster_module.target_groups" {
+    label = "module.target_groups"
+    fontname = "sans-serif"
+    "module.target_groups.aws_lb_target_group.this" [label="aws_lb_target_group.this"];
+  }
+  subgraph "cluster_module.volume_attachments" {
+    label = "module.volume_attachments"
+    fontname = "sans-serif"
+    "module.volume_attachments.aws_volume_attachment.this" [label="aws_volume_attachment.this"];
   }
   subgraph "cluster_module.vpc" {
     label = "module.vpc"
     fontname = "sans-serif"
     "module.vpc.aws_vpc.this" [label="aws_vpc.this"];
   }
-  "module.ec2.aws_instance.this" -> "module.amis.data.aws_ami.this";
-  "module.ec2.aws_instance.this" -> "module.instance_profiles.aws_iam_instance_profile.this";
-  "module.ec2.aws_instance.this" -> "module.security_groups.aws_security_group.this";
-  "module.ec2.aws_instance.this" -> "module.subnets.aws_subnet.this";
+  subgraph "cluster_module.vpc_flow_logs" {
+    label = "module.vpc_flow_logs"
+    fontname = "sans-serif"
+    "module.vpc_flow_logs.aws_flow_log.this" [label="aws_flow_log.this"];
+  }
+  "data.aws_iam_policy_document.aws_config_s3" -> "data.aws_caller_identity.current";
+  "data.aws_iam_policy_document.aws_config_s3" -> "module.s3_buckets.aws_s3_bucket.this";
+  "data.aws_iam_policy_document.cloudtrail_s3" -> "data.aws_caller_identity.current";
+  "data.aws_iam_policy_document.cloudtrail_s3" -> "module.s3_buckets.aws_s3_bucket.this";
+  "aws_s3_bucket_policy.aws_config" -> "data.aws_iam_policy_document.aws_config_s3";
+  "aws_s3_bucket_policy.aws_config" -> "module.s3_buckets.aws_s3_bucket_ownership_controls.this";
+  "aws_s3_bucket_policy.aws_config" -> "module.s3_buckets.aws_s3_bucket_policy.this";
+  "aws_s3_bucket_policy.aws_config" -> "module.s3_buckets.aws_s3_bucket_public_access_block.this";
+  "aws_s3_bucket_policy.aws_config" -> "module.s3_buckets.aws_s3_bucket_server_side_encryption_configuration.this";
+  "aws_s3_bucket_policy.aws_config" -> "module.s3_buckets.aws_s3_bucket_versioning.this";
+  "aws_s3_bucket_policy.cloudtrail" -> "data.aws_iam_policy_document.cloudtrail_s3";
+  "module.acm.aws_acm_certificate_validation.this" -> "module.acm.aws_route53_record.validation";
+  "module.acm.aws_route53_record.validation" -> "module.acm.aws_acm_certificate.this";
+  "module.acm.aws_route53_record.validation" -> "module.route53_hosted_zone.aws_route53_zone.this";
+  "module.aws_config.aws_config_configuration_recorder.this" -> "aws_s3_bucket_policy.aws_config";
+  "module.aws_config.aws_config_configuration_recorder.this" -> "module.iam_roles.aws_iam_role.this";
+  "module.aws_config.aws_config_configuration_recorder_status.this" -> "module.aws_config.aws_config_configuration_recorder.this";
+  "module.aws_config.aws_config_configuration_recorder_status.this" -> "module.aws_config.aws_config_delivery_channel.this";
+  "module.aws_config.aws_config_delivery_channel.this" -> "aws_s3_bucket_policy.aws_config";
+  "module.aws_config.aws_config_delivery_channel.this" -> "module.iam_roles.aws_iam_role.this";
+  "module.aws_load_balancer_controller.data.aws_iam_policy_document.assume_role" -> "module.eks_cluster.aws_iam_openid_connect_provider.this";
+  "module.aws_load_balancer_controller.aws_iam_policy.this" -> "module.eks_cluster.aws_eks_cluster.this";
+  "module.aws_load_balancer_controller.aws_iam_role.this" -> "module.aws_load_balancer_controller.data.aws_iam_policy_document.assume_role";
+  "module.aws_load_balancer_controller.aws_iam_role_policy_attachment.this" -> "module.aws_load_balancer_controller.aws_iam_policy.this";
+  "module.aws_load_balancer_controller.aws_iam_role_policy_attachment.this" -> "module.aws_load_balancer_controller.aws_iam_role.this";
+  "module.aws_load_balancer_controller.helm_release.aws_load_balancer_controller" -> "module.aws_load_balancer_controller.kubernetes_service_account.this";
+  "module.aws_load_balancer_controller.kubernetes_service_account.this" -> "module.aws_load_balancer_controller.aws_iam_role.this";
+  "module.cloudtrail.aws_cloudtrail.this" -> "aws_s3_bucket_policy.cloudtrail";
+  "module.cloudwatch_agents.aws_ssm_association.configure" -> "module.cloudwatch_agents.aws_ssm_association.install";
+  "module.cloudwatch_agents.aws_ssm_association.configure" -> "module.cloudwatch_agents.aws_ssm_parameter.config";
+  "module.cloudwatch_agents.aws_ssm_association.install" -> "module.cloudwatch_agents.aws_ssm_document.install";
+  "module.cloudwatch_agents.aws_ssm_document.install" -> "module.private_ec2.aws_instance.this";
+  "module.cloudwatch_agents.aws_ssm_document.install" -> "module.public_ec2.aws_instance.this";
+  "module.cloudwatch_agents.aws_ssm_parameter.config" -> "module.private_ec2.aws_instance.this";
+  "module.cloudwatch_agents.aws_ssm_parameter.config" -> "module.public_ec2.aws_instance.this";
+  "module.cloudwatch_composite_alarms.aws_cloudwatch_composite_alarm.this" -> "module.cloudwatch_metric_alarms.aws_cloudwatch_metric_alarm.this";
+  "module.cloudwatch_dashboards.aws_cloudwatch_dashboard.this" -> "module.load_balancers.aws_lb.this";
+  "module.cloudwatch_dashboards.aws_cloudwatch_dashboard.this" -> "module.private_ec2.aws_instance.this";
+  "module.cloudwatch_metric_alarms.aws_cloudwatch_metric_alarm.this" -> "module.private_ec2.aws_instance.this";
+  "module.cloudwatch_metric_alarms.aws_cloudwatch_metric_alarm.this" -> "module.sns_topics.aws_sns_topic.this";
+  "module.cluster_autoscaler.aws_iam_policy.this" -> "module.eks_cluster.aws_eks_cluster.this";
+  "module.cluster_autoscaler.aws_iam_role.this" -> "module.oidc_provider.aws_iam_openid_connect_provider.this";
+  "module.cluster_autoscaler.aws_iam_role_policy_attachment.this" -> "module.cluster_autoscaler.aws_iam_policy.this";
+  "module.cluster_autoscaler.aws_iam_role_policy_attachment.this" -> "module.cluster_autoscaler.aws_iam_role.this";
+  "module.cluster_autoscaler.helm_release.this" -> "module.cluster_autoscaler.data.aws_region.current";
+  "module.cluster_autoscaler.helm_release.this" -> "module.cluster_autoscaler.kubernetes_service_account.this";
+  "module.cluster_autoscaler.kubernetes_service_account.this" -> "module.cluster_autoscaler.aws_iam_role.this";
+  "module.ebs_csi.aws_eks_addon.this" -> "module.ebs_csi.aws_iam_role.this";
+  "module.ebs_csi.aws_iam_role.this" -> "module.oidc_provider.aws_iam_openid_connect_provider.this";
+  "module.ebs_csi.aws_iam_role_policy_attachment.this" -> "module.ebs_csi.aws_iam_policy.this";
+  "module.ebs_csi.aws_iam_role_policy_attachment.this" -> "module.ebs_csi.aws_iam_role.this";
+  "module.ecr.aws_ecr_lifecycle_policy.this" -> "module.ecr.aws_ecr_repository.this";
+  "module.efs_csi.aws_eks_addon.this" -> "module.efs_csi.aws_iam_role.this";
+  "module.efs_csi.aws_iam_role.this" -> "module.oidc_provider.aws_iam_openid_connect_provider.this";
+  "module.efs_csi.aws_iam_role_policy_attachment.this" -> "module.efs_csi.aws_iam_policy.this";
+  "module.efs_csi.aws_iam_role_policy_attachment.this" -> "module.efs_csi.aws_iam_role.this";
+  "module.eks_access.aws_eks_access_entry.this" -> "module.eks_cluster.aws_eks_cluster.this";
+  "module.eks_access.aws_eks_access_policy_association.this" -> "module.eks_cluster.aws_eks_cluster.this";
+  "module.eks_addons.aws_eks_addon.this" -> "module.eks_cluster.aws_eks_cluster.this";
+  "module.eks_cluster.data.tls_certificate.eks" -> "module.eks_cluster.aws_eks_cluster.this";
   "module.eks_cluster.aws_eks_cluster.this" -> "module.iam_roles.aws_iam_role.this";
   "module.eks_cluster.aws_eks_cluster.this" -> "module.security_groups.aws_security_group.this";
   "module.eks_cluster.aws_eks_cluster.this" -> "module.subnets.aws_subnet.this";
+  "module.eks_cluster.aws_iam_openid_connect_provider.this" -> "module.eks_cluster.data.tls_certificate.eks";
   "module.eks_node_groups.aws_eks_node_group.this" -> "module.eks_cluster.aws_eks_cluster.this";
+  "module.external_dns.data.aws_iam_policy_document.external_dns_assume_role" -> "module.eks_cluster.aws_iam_openid_connect_provider.this";
+  "module.external_dns.aws_iam_policy.external_dns" -> "module.eks_cluster.aws_eks_cluster.this";
+  "module.external_dns.aws_iam_role.external_dns" -> "module.external_dns.data.aws_iam_policy_document.external_dns_assume_role";
+  "module.external_dns.aws_iam_role_policy_attachment.external_dns" -> "module.external_dns.aws_iam_policy.external_dns";
+  "module.external_dns.aws_iam_role_policy_attachment.external_dns" -> "module.external_dns.aws_iam_role.external_dns";
+  "module.external_dns.helm_release.external_dns" -> "module.external_dns.kubernetes_service_account_v1.external_dns";
+  "module.external_dns.kubernetes_service_account_v1.external_dns" -> "module.external_dns.aws_iam_role.external_dns";
+  "module.fluent_bit.kubernetes_config_map.this" -> "module.irsa.aws_iam_role.this";
+  "module.fluent_bit.kubernetes_daemon_set_v1.this" -> "module.fluent_bit.kubernetes_config_map.this";
+  "module.fluent_bit.kubernetes_daemon_set_v1.this" -> "module.fluent_bit.kubernetes_service_account.this";
+  "module.fluent_bit.kubernetes_namespace.this" -> "module.irsa.aws_iam_role.this";
+  "module.fluent_bit.kubernetes_service_account.this" -> "module.fluent_bit.kubernetes_namespace.this";
   "module.iam_roles.aws_iam_role.this" -> "module.iam_roles.data.aws_iam_policy_document.trust";
   "module.igw.aws_internet_gateway.this" -> "module.vpc.aws_vpc.this";
   "module.instance_profiles.aws_iam_instance_profile.this" -> "module.iam_roles.aws_iam_role.this";
+  "module.irsa.data.aws_iam_policy_document.trust" -> "module.oidc_provider.aws_iam_openid_connect_provider.this";
+  "module.irsa.aws_iam_role.this" -> "module.irsa.data.aws_iam_policy_document.trust";
+  "module.irsa.aws_iam_role_policy_attachment.custom" -> "module.iam_policies.aws_iam_policy.this";
+  "module.irsa.aws_iam_role_policy_attachment.custom" -> "module.irsa.aws_iam_role.this";
+  "module.listeners.aws_lb_listener.this" -> "module.acm.aws_acm_certificate_validation.this";
+  "module.listeners.aws_lb_listener.this" -> "module.load_balancers.aws_lb.this";
+  "module.listeners.aws_lb_listener.this" -> "module.target_groups.aws_lb_target_group.this";
+  "module.load_balancers.aws_lb.this" -> "module.security_groups.aws_security_group.this";
+  "module.load_balancers.aws_lb.this" -> "module.subnets.aws_subnet.this";
   "module.nat_gateway.aws_nat_gateway.this" -> "module.elastic_ip.aws_eip.this";
   "module.nat_gateway.aws_nat_gateway.this" -> "module.subnets.aws_subnet.this";
+  "module.oidc_provider.data.tls_certificate.this" -> "module.eks_cluster.aws_eks_cluster.this";
+  "module.oidc_provider.aws_iam_openid_connect_provider.this" -> "module.oidc_provider.data.tls_certificate.this";
+  "module.opentelemetry.kubernetes_config_map.this" -> "module.irsa.aws_iam_role.this";
+  "module.opentelemetry.kubernetes_deployment_v1.this" -> "module.opentelemetry.kubernetes_config_map.this";
+  "module.opentelemetry.kubernetes_deployment_v1.this" -> "module.opentelemetry.kubernetes_service_account.this";
+  "module.opentelemetry.kubernetes_namespace.this" -> "module.irsa.aws_iam_role.this";
+  "module.opentelemetry.kubernetes_service_account.this" -> "module.opentelemetry.kubernetes_namespace.this";
+  "module.opentelemetry.kubernetes_service_v1.this" -> "module.opentelemetry.kubernetes_deployment_v1.this";
+  "module.private_ec2.aws_instance.this" -> "module.amis.data.aws_ami.this";
+  "module.private_ec2.aws_instance.this" -> "module.instance_profiles.aws_iam_instance_profile.this";
+  "module.private_ec2.aws_instance.this" -> "module.security_groups.aws_security_group.this";
+  "module.private_ec2.aws_instance.this" -> "module.subnets.aws_subnet.this";
+  "module.public_ec2.aws_instance.this" -> "module.amis.data.aws_ami.this";
+  "module.public_ec2.aws_instance.this" -> "module.instance_profiles.aws_iam_instance_profile.this";
+  "module.public_ec2.aws_instance.this" -> "module.security_groups.aws_security_group.this";
+  "module.public_ec2.aws_instance.this" -> "module.subnets.aws_subnet.this";
   "module.role_policy_attachments.aws_iam_role_policy_attachment.custom" -> "module.iam_policies.aws_iam_policy.this";
   "module.role_policy_attachments.aws_iam_role_policy_attachment.custom" -> "module.iam_roles.aws_iam_role.this";
   "module.role_policy_attachments.aws_iam_role_policy_attachment.managed" -> "module.iam_roles.aws_iam_role.this";
+  "module.route53_record.aws_route53_record.this" -> "module.load_balancers.aws_lb.this";
+  "module.route53_record.aws_route53_record.this" -> "module.route53_hosted_zone.aws_route53_zone.this";
   "module.route_table_associations.aws_route_table_association.this" -> "module.route_tables.aws_route_table.this";
   "module.route_table_associations.aws_route_table_association.this" -> "module.subnets.aws_subnet.this";
   "module.route_tables.aws_route_table.this" -> "module.vpc.aws_vpc.this";
   "module.routes.aws_route.this" -> "module.igw.aws_internet_gateway.this";
   "module.routes.aws_route.this" -> "module.nat_gateway.aws_nat_gateway.this";
   "module.routes.aws_route.this" -> "module.route_tables.aws_route_table.this";
+  "module.s3_buckets.aws_s3_bucket_ownership_controls.this" -> "module.s3_buckets.aws_s3_bucket.this";
+  "module.s3_buckets.aws_s3_bucket_policy.this" -> "module.s3_buckets.aws_s3_bucket.this";
+  "module.s3_buckets.aws_s3_bucket_public_access_block.this" -> "module.s3_buckets.aws_s3_bucket.this";
+  "module.s3_buckets.aws_s3_bucket_server_side_encryption_configuration.this" -> "module.s3_buckets.aws_s3_bucket.this";
+  "module.s3_buckets.aws_s3_bucket_versioning.this" -> "module.s3_buckets.aws_s3_bucket.this";
   "module.security_group_rules.aws_security_group_rule.cidr" -> "module.security_groups.aws_security_group.this";
   "module.security_group_rules.aws_security_group_rule.ipv6" -> "module.security_groups.aws_security_group.this";
   "module.security_group_rules.aws_security_group_rule.prefix_list" -> "module.security_groups.aws_security_group.this";
   "module.security_group_rules.aws_security_group_rule.self" -> "module.security_groups.aws_security_group.this";
   "module.security_group_rules.aws_security_group_rule.sg" -> "module.security_groups.aws_security_group.this";
   "module.security_groups.aws_security_group.this" -> "module.vpc.aws_vpc.this";
+  "module.security_hub.aws_securityhub_standards_subscription.aws_foundational" -> "module.security_hub.data.aws_region.current";
+  "module.security_hub.aws_securityhub_standards_subscription.aws_foundational" -> "module.security_hub.aws_securityhub_account.this";
+  "module.security_hub.aws_securityhub_standards_subscription.cis" -> "module.security_hub.data.aws_region.current";
+  "module.security_hub.aws_securityhub_standards_subscription.cis" -> "module.security_hub.aws_securityhub_account.this";
+  "module.security_hub.aws_securityhub_standards_subscription.pci_dss" -> "module.security_hub.data.aws_region.current";
+  "module.security_hub.aws_securityhub_standards_subscription.pci_dss" -> "module.security_hub.aws_securityhub_account.this";
+  "module.sns_subscriptions.aws_sns_topic_subscription.this" -> "module.sns_topics.aws_sns_topic.this";
   "module.subnets.aws_subnet.this" -> "module.vpc.aws_vpc.this";
+  "module.target_group_attachments.aws_lb_target_group_attachment.this" -> "module.private_ec2.aws_instance.this";
+  "module.target_group_attachments.aws_lb_target_group_attachment.this" -> "module.public_ec2.aws_instance.this";
+  "module.target_group_attachments.aws_lb_target_group_attachment.this" -> "module.target_groups.aws_lb_target_group.this";
+  "module.target_groups.aws_lb_target_group.this" -> "module.vpc.aws_vpc.this";
+  "module.volume_attachments.aws_volume_attachment.this" -> "module.ebs.aws_ebs_volume.this";
+  "module.volume_attachments.aws_volume_attachment.this" -> "module.private_ec2.aws_instance.this";
+  "module.volume_attachments.aws_volume_attachment.this" -> "module.public_ec2.aws_instance.this";
+  "module.vpc_flow_logs.aws_flow_log.this" -> "module.cloudwatch_log_groups.aws_cloudwatch_log_group.this";
+  "module.vpc_flow_logs.aws_flow_log.this" -> "module.iam_roles.aws_iam_role.this";
+  "module.vpc_flow_logs.aws_flow_log.this" -> "module.vpc.aws_vpc.this";
 }

@@ -17,9 +17,12 @@ variable "instances" {
     associate_public_ip = optional(bool, false)
     monitoring = optional(bool, false)
     ebs_optimized = optional(bool, false)
+    user_data_replace_on_change = optional(bool, false)
     disable_api_termination = optional(bool, false)
-    root_volume = optional(object({
+    user_data_file = optional(string)
 
+    root_volume = optional(object({
+   
       size = number
       type = string
       encrypted = optional(bool, true)

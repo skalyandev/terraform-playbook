@@ -29,12 +29,12 @@ output "ssm_parameter_arns" {
 
 
 #########################################################
-# INSTALL DOCUMENT NAMES
+# INSTALL + CONFIGURATION DOCUMENT NAMES
 #########################################################
 
 output "install_document_names" {
 
-  description = "CloudWatch Agent installation SSM documents"
+  description = "CloudWatch Agent install and configuration SSM documents"
 
   value = {
     for k, v in aws_ssm_document.install :
@@ -44,30 +44,15 @@ output "install_document_names" {
 
 
 #########################################################
-# INSTALL ASSOCIATION IDS
-#########################################################
-
-output "install_association_ids" {
-
-  description = "CloudWatch Agent installation association IDs"
-
-  value = {
-    for k, v in aws_ssm_association.install :
-    k => v.association_id
-  }
-}
-
-
-#########################################################
-# CONFIGURATION ASSOCIATION IDS
+# INSTALL + CONFIGURATION ASSOCIATION IDS
 #########################################################
 
 output "association_ids" {
 
-  description = "CloudWatch Agent configuration association IDs"
+  description = "CloudWatch Agent install and configuration association IDs"
 
   value = {
-    for k, v in aws_ssm_association.configure :
+    for k, v in aws_ssm_association.install :
     k => v.association_id
   }
 }
@@ -83,4 +68,3 @@ output "agent_names" {
 
   value = local.agent_names
 }
-

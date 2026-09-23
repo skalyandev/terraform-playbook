@@ -345,10 +345,10 @@ output "eks_cluster_oidc_issuers" {
 
 }
 
-output "cluster_oidc_provider_arns" {
-  value = module.eks_cluster.cluster_oidc_provider_arns
+#output "cluster_oidc_provider_arns" {
+#  value = module.eks_cluster.cluster_oidc_provider_arns
 
-}
+#}
 
 
 output "eks_access_entries" {
@@ -937,8 +937,38 @@ output "opentelemetry_health_check_endpoint" {
 }
 
 
+#####################################################
+# BUDGET O/P's
+#####################################################
+output "budget_ids" {
+  value = module.finops_budget.budget_ids
+}
 
+output "budget_names" {
+  value = module.finops_budget.budget_names
+}
 
+#########################################################
+# FINOPS - COST ANOMALY DETECTION
+#########################################################
 
+output "finops_cost_anomaly_monitor_arn" {
+  description = "ARN of the AWS Cost Anomaly Detection monitor."
+  value       = module.finops_cost_anomaly.cost_anomly_monitor_arn
+}
 
+output "finops_cost_anomly_monitor_id" {
+  description = "ARN of the AWS Cost Anomaly Detection subscription."
+  value       = module.finops_cost_anomaly.cost_anomly_monitor_id
+}
+
+output "finops_cost_anomly_subscription_arn" {
+  description = "ARN of the AWS Cost Anomaly Detection monitor."
+  value       = module.finops_cost_anomaly.cost_anomly_subscription_arn
+}
+
+output "finops_cost_anomly_subscription_id" {
+  description = "ARN of the AWS Cost Anomaly Detection subscription."
+  value       = module.finops_cost_anomaly.cost_anomly_subscription_id
+}
 

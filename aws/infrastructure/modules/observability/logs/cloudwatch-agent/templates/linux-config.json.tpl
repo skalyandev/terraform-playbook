@@ -3,19 +3,15 @@
     "metrics_collection_interval": 60,
     "run_as_user": "root"
   },
-
   "metrics": {
     "namespace": "CWAgent",
-
     "append_dimensions": {
       "InstanceId": "$${aws:InstanceId}",
       "InstanceType": "$${aws:InstanceType}",
-      "ImageId": "$${aws:ImageId}",
+      "ImageId": "$${ImageId}",
       "AutoScalingGroupName": "$${aws:AutoScalingGroupName}"
     },
-
     "metrics_collected": {
-
       "cpu": {
         "measurement": [
           "cpu_usage_idle",
@@ -35,7 +31,6 @@
           "cpu_time"
         ]
       },
-
       "mem": {
         "measurement": [
           "mem_used_percent",
@@ -46,7 +41,6 @@
         ],
         "metrics_collection_interval": 60
       },
-
       "disk": {
         "measurement": [
           "used_percent",
@@ -59,7 +53,6 @@
           "*"
         ]
       },
-
       "diskio": {
         "measurement": [
           "read_bytes",
@@ -76,7 +69,6 @@
           "*"
         ]
       },
-
       "net": {
         "measurement": [
           "bytes_sent",
@@ -93,7 +85,6 @@
           "*"
         ]
       },
-
       "swap": {
         "measurement": [
           "swap_used_percent",
@@ -102,7 +93,6 @@
         ],
         "metrics_collection_interval": 60
       },
-
       "processes": {
         "measurement": [
           "processes_total",
@@ -116,44 +106,62 @@
       }
     }
   },
-
   "logs": {
     "logs_collected": {
       "files": {
         "collect_list": [
-
           {
             "file_path": "/var/log/messages",
             "log_group_name": "/aws/ec2/system",
             "log_stream_name": "{instance_id}/messages"
           },
-
           {
             "file_path": "/var/log/secure",
             "log_group_name": "/aws/ec2/security",
             "log_stream_name": "{instance_id}/secure"
           },
-
           {
             "file_path": "/var/log/syslog",
             "log_group_name": "/aws/ec2/system",
             "log_stream_name": "{instance_id}/syslog"
           },
-
-          {
-            "file_path": "/var/log/jenkins/jenkins.log",
-            "log_group_name": "/aws/ec2/jenkins",
-            "log_stream_name": "{instance_id}/jenkins"
-          },
-
           {
             "file_path": "/opt/aws/amazon-cloudwatch-agent/logs/amazon-cloudwatch-agent.log",
             "log_group_name": "/aws/ec2/cloudwatch-agent",
             "log_stream_name": "{instance_id}/cloudwatch-agent"
           }
-
         ]
       }
+
+%{ if agent_name == "jenkins" }
+      ,
+      "journald": {
+        "collect_list": [
+          {
+            "units": [
+              "jenkins.service"
+            ],
+            "log_group_name": "/aws/ec2/jenkins",
+            "log_stream_name": "{instance_id}/jenkins"
+          }
+        ]
+      }
+%{ endif }
+
+%{ if agent_name == "bastion" }
+      ,
+      "journald": {
+        "collect_list": [
+          {
+            "log_group_name": "/aws/ec2/bastion",
+            "log_stream_name": "{instance_id}/bastion"
+          }
+        ]
+      }
+%{ endif }
+
     }
   }
 }
+
+

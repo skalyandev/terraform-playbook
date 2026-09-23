@@ -78,7 +78,7 @@ locals {
       protocol = "HTTPS"
 
       certificate_arn = module.acm.certificate_arn
-      ssl_policy = "ELBSecurityPolicy-TLS13-1-2-2021-06"
+      ssl_policy      = "ELBSecurityPolicy-TLS13-1-2-2021-06"
 
       default_action = {
         type         = "forward"
@@ -86,18 +86,6 @@ locals {
       }
     }
 
-    nginx-http = {
-
-      load_balancer = "nginx"
-
-      port     = 80
-      protocol = "HTTP"
-
-      default_action = {
-        type         = "forward"
-        target_group = "nginx"
-      }
-    }
   }
 }
 
@@ -148,9 +136,13 @@ locals {
       template       = "compute/jenkins.json.tpl"
       variables = {
         instance_id = module.private_ec2.instance_ids["jenkins-ec2-server-ap-south-a"]
+
+        image_id = module.private_ec2.instances["jenkins-ec2-server-ap-south-a"].ami
+
+        instance_type = module.private_ec2.instances["jenkins-ec2-server-ap-south-a"].instance_type
+
       }
     }
-
 
     alb = {
       dashboard_name = "dev-alb-dashboard"
@@ -258,6 +250,8 @@ locals {
       ####################################################
 
       log_group_name = module.cloudwatch_log_groups.cloudwatch_log_group_names["vpc-flow-logs"]
+
+      log_group_arn  = module.cloudwatch_log_groups.cloudwatch_log_group_arns["vpc-flow-logs"]
 
       ####################################################
       # IAM

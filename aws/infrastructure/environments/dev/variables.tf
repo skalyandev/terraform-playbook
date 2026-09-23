@@ -64,7 +64,7 @@ variable "subnets" {
 variable "route_tables" {
 
   type = map(object({
-    route_type = string
+    route_type        = string
     availability_zone = string
   }))
 }
@@ -1146,8 +1146,109 @@ variable "opentelemetry_irsa" {
 }
 
 
+##################################################
+# BUDGET VARIABLES
+##################################################
+variable "budgets" {
+  description = "FinOps budget configuration for the environment."
 
+  type = map(object({
+    name         = string
+    limit_amount = number
+    limit_unit   = optional(string, "USD")
+    time_unit    = optional(string, "MONTHLY")
 
+    services = optional(list(string), [])
 
+    tags = optional(map(list(string)), {})
+
+    actual_alerts = optional(list(object({
+      threshold = number
+      })), [
+      {
+        threshold = 50
+      },
+      {
+        threshold = 80
+      },
+      {
+        threshold = 100
+      }
+    ])
+
+    forecast_alerts = optional(list(object({
+      threshold = number
+      })), [
+      {
+        threshold = 100
+      }
+    ])
+  }))
+}
+
+variable "finops_notification_email_addresses" {
+  description = "FinOps budget notification email addresses."
+
+  type    = list(string)
+  default = []
+}
+
+variable "finops_notification_sns_topic_arns" {
+  description = "FinOps budget notification SNS topic ARNs."
+
+  type    = list(string)
+  default = []
+}
+
+#########################################################
+# FINOPS - COST ANOMALY DETECTION
+#########################################################
+
+variable "finops_cost_anomaly_monitor_name" {
+  description = "AWS Cost Anomaly Detection monitor name."
+  type        = string
+}
+
+variable "finops_cost_anomaly_subscription_name" {
+  description = "AWS Cost Anomaly Detection subscription name."
+  type        = string
+}
+
+variable "finops_cost_anomaly_notification_frequency" {
+  description = "Cost anomaly notification frequency."
+  type        = string
+  default     = "DAILY"
+
+  validation {
+    condition = contains(
+      ["DAILY", "IMMEDIATE", "WEEKLY"],
+      var.finops_cost_anomaly_notification_frequency
+    )
+
+    error_message = "Frequency must be DAILY, IMMEDIATE, or WEEKLY."
+  }
+}
+
+variable "finops_cost_anomaly_absolute_threshold" {
+  description = "Absolute cost anomaly impact threshold in USD."
+  type        = number
+  default     = 100
+
+  validation {
+    condition     = var.finops_cost_anomaly_absolute_threshold >= 0
+    error_message = "Absolute threshold must be zero or greater."
+  }
+}
+
+variable "finops_cost_anomaly_percentage_threshold" {
+  description = "Percentage cost anomaly impact threshold."
+  type        = number
+  default     = 40
+
+  validation {
+    condition     = var.finops_cost_anomaly_percentage_threshold >= 0
+    error_message = "Percentage threshold must be zero or greater."
+  }
+}
 
 

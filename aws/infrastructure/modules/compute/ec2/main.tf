@@ -8,7 +8,14 @@ resource "aws_instance" "this" {
 
   # AMI
   ami = var.ami_ids[each.value.ami]
-  
+ 
+  user_data = try(
+    file("${path.root}/${each.value.user_data_file}"),
+    null
+  )
+
+  user_data_replace_on_change = each.value.user_data_replace_on_change
+ 
   # INSTANCE TYPE
   instance_type = each.value.instance_type
 

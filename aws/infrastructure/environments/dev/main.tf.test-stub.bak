@@ -1,0 +1,9 @@
+module "m" {
+  source = "./mod"
+  lgs = {
+    fluent-bit = {
+      name               = "/aws/x"
+      rentention_in_days = 90
+    }
+  }
+}

@@ -4,6 +4,7 @@ variable "vpc_flow_logs" {
 
     vpc_id         = string
     log_group_name = string
+    log_group_arn  = string
     iam_role_arn   = string
 
     traffic_type             = optional(string, "ALL")

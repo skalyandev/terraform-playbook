@@ -1,0 +1,67 @@
+#cloud-config
+
+##################################################################################
+# USER CONFIGURATION
+##################################################################################
+
+users:
+  - default
+
+  - name: ec2-user
+    groups:
+      - sudo
+      - docker
+    sudo:
+      - ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    ssh_authorized_keys:
+      - ${bastion_ssh_key_1}
+      - ${bastion_ssh_key_2}
+
+##################################################################################
+# SYSTEM UPDATE
+##################################################################################
+
+package_update: true
+package_upgrade: true
+
+##################################################################################
+# REQUIRED PACKAGES
+##################################################################################
+
+packages:
+  - git
+  - unzip
+  - wget
+  - curl
+  - jq
+  - docker
+  - cronie
+
+##################################################################################
+# ENVIRONMENT CONFIGURATION
+##################################################################################
+
+write_files:
+  - path: /home/ec2-user/.bashrc.d/bastion_env
+    owner: ec2-user:ec2-user
+    permissions: "0644"
+    defer: true
+    content: |
+      alias k='kubectl'
+
+      export ENV_NAME_PREFIX=${env_name_prefix}
+      export AWS_REGION=${aws_region}
+
+##################################################################################
+# BOOTSTRAP COMMANDS
+##################################################################################
+
+runcmd:
+
+  #########################################################################
+  # SSH HARDENING
+  #########################################################################
+
+  - sed -i '/PermitRootLogin/d' /etc/ssh/sshd_config
+  - echo 'Bastion bootstrap completed successfully' > /tmp/bootstrap-status.txt

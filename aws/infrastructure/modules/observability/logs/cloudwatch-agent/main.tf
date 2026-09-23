@@ -1,5 +1,5 @@
 #########################################################
-# CLOUDWATCH AGENT INSTALLATION SSM DOCUMENT
+# CLOUDWATCH AGENT INSTALL + CONFIGURATION SSM DOCUMENT
 #########################################################
 
 resource "aws_ssm_document" "install" {
@@ -17,7 +17,11 @@ resource "aws_ssm_document" "install" {
 
   content = templatefile(
     "${path.module}/templates/linux-ssm.json.tpl",
-    {}
+    {
+      mode                = each.value.mode
+      ssm_parameter_name  = aws_ssm_parameter.config[each.key].name
+      restart             = each.value.restart ? "yes" : "no"
+    }
   )
 
   tags = merge(
@@ -48,7 +52,9 @@ resource "aws_ssm_parameter" "config" {
 
   value = templatefile(
     "${path.module}/templates/linux-config.json.tpl",
-    {}
+    {
+      agent_name = each.key
+    }
   )
 
   tier = "Standard"
@@ -64,7 +70,7 @@ resource "aws_ssm_parameter" "config" {
 
 
 #########################################################
-# INSTALL CLOUDWATCH AGENT
+# INSTALL + CONFIGURE CLOUDWATCH AGENT
 #########################################################
 
 resource "aws_ssm_association" "install" {
@@ -86,48 +92,4 @@ resource "aws_ssm_association" "install" {
       each.value.instance_id
     ]
   }
-}
-
-
-#########################################################
-# CONFIGURE CLOUDWATCH AGENT
-#########################################################
-
-resource "aws_ssm_association" "configure" {
-
-  for_each = var.cloudwatch_agents
-
-  name = "AmazonCloudWatch-ManageAgent"
-
-  association_name = local.agent_names[each.key]
-
-  parameters = merge(
-
-    {
-      action = "configure"
-
-      mode = each.value.mode
-
-      optionalConfigurationSource = "ssm"
-
-      optionalConfigurationLocation = aws_ssm_parameter.config[each.key].name
-
-      optionalRestart = each.value.restart ? "yes" : "no"
-    },
-
-    each.value.parameters
-  )
-
-  targets {
-    key = "InstanceIds"
-
-    values = [
-      each.value.instance_id
-    ]
-  }
-
-  depends_on = [
-    aws_ssm_parameter.config,
-    aws_ssm_association.install
-  ]
 }

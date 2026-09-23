@@ -1,6 +1,6 @@
-##################################
+#################################
 # VPC FLOW LOGS
-##################################
+#################################
 resource "aws_flow_log" "this" {
 
   for_each = var.vpc_flow_logs
@@ -11,7 +11,10 @@ resource "aws_flow_log" "this" {
 
   log_destination_type = "cloud-watch-logs"
 
-  log_group_name = each.value.log_group_name
+  # ARN is passed in from the cloudwatch-log-group module output, so no
+  # data source lookup is needed (a lookup would fail at plan time while the
+  # log group is still pending creation).
+  log_destination = each.value.log_group_arn
 
   iam_role_arn = each.value.iam_role_arn
 

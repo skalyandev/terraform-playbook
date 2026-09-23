@@ -35,12 +35,22 @@
         "stat": "Average",
         "period": 300,
         "metrics": [
-          [
+          [ 
             "CWAgent",
-            "mem_used_percent",
+            "disk_used_percent",
             "InstanceId",
-            "${instance_id}"
-          ]
+            "${instance_id}",
+            "ImageId",
+            "${image_id}",
+            "InstanceType",
+            "${instance_type}",
+            "path",
+            "/",
+            "device",
+            "nvme0n1p1",
+            "fstype",
+            "xfs"
+         ]
         ]
       }
     },
@@ -61,8 +71,18 @@
             "CWAgent",
             "disk_used_percent",
             "InstanceId",
-            "${instance_id}"
-          ]
+            "${instance_id}",
+            "ImageId",
+            "${image_id}",
+            "InstanceType",
+            "${instance_type}",
+            "path",
+            "/",
+            "device",
+            "nvme0n1p1",
+            "fstype",
+            "xfs"
+         ]
         ]
       }
     }

@@ -407,7 +407,7 @@ module "aws_load_balancer_controller" {
   region            = var.aws_region
   vpc_id            = module.vpc.vpc_id
   oidc_provider_url = module.eks_cluster.cluster_oidc_issuers["boutique-dev"]
-  oidc_provider_arn = module.eks_cluster.cluster_oidc_provider_arns["boutique-dev"]
+  oidc_provider_arn = module.oidc_provider.oidc_provider_arns["boutique-dev"]
 }
 
 #########################################################
@@ -421,7 +421,7 @@ module "external_dns" {
   cluster_name      = module.eks_cluster.cluster_names["boutique-dev"]
   region            = var.aws_region
   oidc_provider_url = module.eks_cluster.cluster_oidc_issuers["boutique-dev"]
-  oidc_provider_arn = module.eks_cluster.cluster_oidc_provider_arns["boutique-dev"]
+  oidc_provider_arn = module.oidc_provider.oidc_provider_arns["boutique-dev"]
   domain_name       = "cloud-devops-lab.xyz"
   zone_id           = module.route53_hosted_zone.zone_id
   tags              = local.common_tags
@@ -1110,6 +1110,42 @@ module "opentelemetry" {
       irsa_role_arn = module.irsa.role_arns["dev-opentelemetry"]
     }
   )
+
+}
+
+#########################################################
+# FINOPS - BUDGETS
+#########################################################
+
+module "finops_budget" {
+
+  source = "../../modules/finops/budget"
+
+  budgets                    = var.budgets
+  notification_email_addresses = var.finops_notification_email_addresses
+  notification_sns_topic_arns  = var.finops_notification_sns_topic_arns
+  tags                        = local.common_tags
+
+}
+
+#########################################################
+# FINOPS - COST ANOMALY DETECTION
+#########################################################
+
+module "finops_cost_anomaly" {
+
+  source = "../../modules/finops/cost-anomaly"
+
+  monitor_name           = var.finops_cost_anomaly_monitor_name
+  subscription_name      = var.finops_cost_anomaly_subscription_name
+  notification_frequency = var.finops_cost_anomaly_notification_frequency
+  absolute_threshold     = var.finops_cost_anomaly_absolute_threshold
+  percentage_threshold   = var.finops_cost_anomaly_percentage_threshold
+
+  subscriber_email_addresses = var.finops_notification_email_addresses
+  subscriber_sns_topic_arns  = var.finops_notification_sns_topic_arns
+
+  tags = local.common_tags
 
 }
 

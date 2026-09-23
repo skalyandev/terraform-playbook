@@ -21,6 +21,14 @@
       "Resource": "*"
     },
     {
+      "Sid": "CloudWatchAgentConfiguration",
+      "Effect": "Allow",
+      "Action": [
+        "ssm:GetParameter"
+      ],
+      "Resource": "arn:aws:ssm:ap-south-1:756148746379:parameter/amazon-cloudwatch-agent/jenkins"
+    },
+    {
       "Sid": "EC2MetadataAccess",
       "Effect": "Allow",
       "Action": [

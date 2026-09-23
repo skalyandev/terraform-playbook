@@ -110,18 +110,13 @@ output "cluster_oidc_issuers" {
 # OIDC PROVIDER ARNS
 #########################################################
 
-output "cluster_oidc_provider_arns" {
+#output "cluster_oidc_provider_arns" {
 
-  description = "OIDC Provider ARN"
-
-  value = {
-
-    for k, v in aws_iam_openid_connect_provider.this :
-
-    k => v.arn
-
-  }
-
-}
+#  description = "OIDC Provider ARN"
+#  value = {
+#    for k, v in aws_iam_openid_connect_provider.this :
+#    k => v.arn
+#  }
+#}
 
 

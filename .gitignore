@@ -4,6 +4,12 @@
 *.tfstate.*
 crash.log
 
+#PEM Files
+*.pem
+*.pem-old
+*.pem-backup
+*.pem:Zone.Identifier
+
 #Terraform variable files
 *.tfvars
 *.tfvars.json

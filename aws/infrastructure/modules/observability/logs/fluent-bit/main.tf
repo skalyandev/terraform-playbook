@@ -2,6 +2,7 @@
 # FLUENT BIT
 #########################################################
 
+
 #########################################################
 # KUBERNETES NAMESPACE
 #########################################################
@@ -27,8 +28,7 @@ resource "kubernetes_service_account" "this" {
 
   metadata {
 
-    name = var.fluent_bit.service_account_name
-
+    name      = var.fluent_bit.service_account_name
     namespace = var.fluent_bit.namespace
 
     annotations = {
@@ -54,8 +54,7 @@ resource "kubernetes_config_map" "this" {
 
   metadata {
 
-    name = "fluent-bit-config"
-
+    name      = "fluent-bit-config"
     namespace = var.fluent_bit.namespace
 
   }
@@ -94,13 +93,13 @@ resource "kubernetes_config_map" "this" {
           Name                kubernetes
           Match               kube.*
           Kube_URL             https://kubernetes.default.svc:443
-          Kube_CA_File         /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-          Kube_Token_File      /var/run/secrets/kubernetes.io/serviceaccount/token
-          Kube_Tag_Prefix      kube.var.log.containers.
-          Merge_Log             On
-          Keep_Log              Off
-          K8S-Logging.Parser    On
-          K8S-Logging.Exclude   On
+          Kube_CA_File        /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+          Kube_Token_File     /var/run/secrets/kubernetes.io/serviceaccount/token
+          Kube_Tag_Prefix     kube.var.log.containers.
+          Merge_Log           On
+          Keep_Log            Off
+          K8S-Logging.Parser  On
+          K8S-Logging.Exclude On
 
       [OUTPUT]
           Name                cloudwatch_logs
@@ -108,7 +107,7 @@ resource "kubernetes_config_map" "this" {
           region              ${var.fluent_bit.region}
           log_group_name      ${var.fluent_bit.log_group_name}
           log_stream_prefix   ${var.fluent_bit.log_stream_prefix}
-          auto_create_group   true
+          auto_create_group   false
 
       [OUTPUT]
           Name                cloudwatch_logs
@@ -116,7 +115,7 @@ resource "kubernetes_config_map" "this" {
           region              ${var.fluent_bit.region}
           log_group_name      ${var.fluent_bit.log_group_name}
           log_stream_prefix   ${var.fluent_bit.log_stream_prefix}-host
-          auto_create_group   true
+          auto_create_group   false
 
     EOF
 
@@ -147,8 +146,7 @@ resource "kubernetes_daemon_set_v1" "this" {
 
   metadata {
 
-    name = "fluent-bit"
-
+    name      = "fluent-bit"
     namespace = var.fluent_bit.namespace
 
     labels = {
@@ -181,6 +179,7 @@ resource "kubernetes_daemon_set_v1" "this" {
 
         service_account_name = var.fluent_bit.service_account_name
 
+
         #################################################
         # TOLERATIONS
         #################################################
@@ -196,6 +195,7 @@ resource "kubernetes_daemon_set_v1" "this" {
           }
 
         }
+
 
         #################################################
         # CONTAINER
@@ -218,6 +218,7 @@ resource "kubernetes_daemon_set_v1" "this" {
             "/fluent-bit/etc/fluent-bit.conf"
           ]
 
+
           #################################################
           # PORT
           #################################################
@@ -229,6 +230,7 @@ resource "kubernetes_daemon_set_v1" "this" {
             protocol       = "TCP"
 
           }
+
 
           #################################################
           # RESOURCES
@@ -248,8 +250,9 @@ resource "kubernetes_daemon_set_v1" "this" {
 
           }
 
+
           #################################################
-          # CONFIGURATION
+          # CONFIGURATION VOLUME
           #################################################
 
           volume_mount {
@@ -270,26 +273,36 @@ resource "kubernetes_daemon_set_v1" "this" {
 
           }
 
+
+          #################################################
+          # HOST LOG VOLUME
+          #################################################
+
           volume_mount {
 
             name       = "varlog"
             mount_path = "/var/log"
-
-            read_only = true
+            read_only  = true
 
           }
+
+
+          #################################################
+          # FLUENT BIT DATABASE VOLUME
+          #################################################
 
           volume_mount {
 
             name       = "fluentbit-db"
-            mount_path = "/var/log"
+            mount_path = "/fluent-bit/state"
 
           }
 
         }
 
+
         #################################################
-        # VOLUMES
+        # CONFIGMAP VOLUME
         #################################################
 
         volume {
@@ -304,6 +317,11 @@ resource "kubernetes_daemon_set_v1" "this" {
 
         }
 
+
+        #################################################
+        # HOST LOG VOLUME
+        #################################################
+
         volume {
 
           name = "varlog"
@@ -316,6 +334,11 @@ resource "kubernetes_daemon_set_v1" "this" {
 
         }
 
+
+        #################################################
+        # FLUENT BIT DATABASE VOLUME
+        #################################################
+
         volume {
 
           name = "fluentbit-db"
@@ -323,7 +346,6 @@ resource "kubernetes_daemon_set_v1" "this" {
           host_path {
 
             path = "/var/log/fluent-bit"
-
             type = "DirectoryOrCreate"
 
           }
@@ -335,6 +357,11 @@ resource "kubernetes_daemon_set_v1" "this" {
     }
 
   }
+
+
+  #######################################################
+  # RESOURCE DEPENDENCIES
+  #######################################################
 
   depends_on = [
     kubernetes_service_account.this,
