@@ -10,6 +10,14 @@ crash.log
 *.pem-backup
 *.pem:Zone.Identifier
 
+
+# Terraform plan files
+*.tfplan
+*.tfplan.json
+tfplan
+tfplan.json
+aws-bckup/tfplan.json
+
 #Terraform variable files
 *.tfvars
 *.tfvars.json
