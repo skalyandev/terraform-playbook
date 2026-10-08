@@ -50,6 +50,11 @@ output "private_subnet_ids" {
   value = module.subnets.private_subnet_ids
 }
 
+output "eks_private_subnet_ids" {
+  value = module.subnets.private_subnet_ids["eks"]
+}
+
+
 #output "subnet_ids_by_type" {
 #  value = module.subnets.subnet_ids_by_type
 #}
@@ -486,6 +491,36 @@ output "efs_csi_iam_policy_arn" {
   value = var.efs_csi_enabled ? module.efs_csi[0].efs_csi_iam_policy_arn : null
 }
 
+output "ebs_gp3_storage_class_names" {
+  description = "Map of EBS GP3 StorageClass keys to Kubernetes StorageClass names."
+
+  value = module.ebs_gp3_storage_class.storage_class_names
+}
+
+output "ebs_gp3_storage_class_provisioners" {
+  description = "Map of EBS GP3 StorageClass keys to their storage provisioners."
+
+  value = module.ebs_gp3_storage_class.storage_class_provisioners
+}
+
+output "efs_storage_class_name" {
+  description = "Name of the EFS Kubernetes StorageClass."
+
+  value = module.efs_storage_class.name
+}
+
+output "efs_storage_class_provisioner" {
+  description = "Provisioner used by the EFS StorageClass."
+
+  value = module.efs_storage_class.provisioner
+}
+
+output "efs_storage_class_file_system_id" {
+  description = "EFS filesystem ID used by the EFS StorageClass."
+
+  value = module.efs_storage_class.file_system_id
+}
+
 # ============================================================
 # EKS Foundational Add-ons
 # ============================================================
@@ -509,6 +544,28 @@ output "eks_addon_arns" {
 }
 
 
+#########################################################
+# EFS FILESYSTEM GRP O/P's
+#########################################################
+output "efs_file_system_id" {
+  value = module.efs.file_system_id
+}
+
+output "efs_file_system_arn" {
+  value = module.efs.file_system_arn
+}
+
+output "efs_security_group_ids" {
+  value = module.efs.security_group_ids
+}
+
+output "efs_mount_target_ids" {
+  value = module.efs.mount_target_ids
+}
+
+output "efs_mount_target_dns_names" {
+  value = module.efs.mount_target_dns_names
+}
 
 #########################################################
 # ALB  TARGET GRP O/P's
@@ -947,6 +1004,58 @@ output "budget_ids" {
 output "budget_names" {
   value = module.finops_budget.budget_names
 }
+
+
+#########################################################
+# GRAFANA + PROMETHEUS + ALERT MANAGER
+#########################################################
+output "grafana_release_name" {
+   value = module.kube_prometheus_stack.release_name
+}
+
+output "grafana_namespace" {
+  value = module.kube_prometheus_stack.namespace
+}
+
+output "grafana_release_status" {
+  value = module.kube_prometheus_stack.release_status
+}
+
+output "grafana_service_name" {
+  value = module.kube_prometheus_stack.grafana_service_name
+}
+
+output "prometheus_service_name" {
+  value = module.kube_prometheus_stack.prometheus_service_name
+}
+
+output "alertmanager_service_name" {
+  value = module.kube_prometheus_stack.alertmanager_service_name
+}
+
+#########################################################
+# SONARQUBE
+#########################################################
+output "sonarqube_release_name" {
+  value = module.sonarqube.release_name
+}
+
+output "sonarqube_namespace" {
+  value = module.sonarqube.namespace
+}
+
+output "sonarqube_release_status" {
+   value = module.sonarqube.release_status
+}
+
+output "sonarqube_service_name" {
+  value = module.sonarqube.service_name
+}
+
+output "sonarqube_service_port" {
+  value = module.sonarqube.service_port
+}
+
 
 #########################################################
 # FINOPS - COST ANOMALY DETECTION
