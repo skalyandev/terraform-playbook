@@ -502,6 +502,59 @@ module "eks_addons" {
 }
 
 
+######################################################
+# EFS FILESYSTEM
+######################################################
+module "efs" {
+  source = "../../modules/storage/efs"
+
+  efs = var.efs
+
+  subnet_ids = module.subnets.private_subnet_ids["eks"]
+  
+  security_group_ids = [
+    module.security_groups.security_group_ids["efs"]
+  ]
+
+  depends_on = [
+    module.vpc,
+    module.subnets,
+    module.security_groups
+  ]
+}
+
+######################################################
+# EBS GP3 STORAGECLASS
+######################################################
+module "ebs_gp3_storage_class" {
+  source = "../../modules/containers/storage-class/ebs-gp3"
+
+  ebs_gp3_storage_classes = var.ebs_gp3_storage_classes
+
+  depends_on = [
+    module.ebs_csi
+  ]
+}
+
+######################################################
+# EFS STORAGECLASS
+######################################################
+module "efs_storage_class" {
+  source = "../../modules/containers/storage-class/efs"
+
+  efs_storage_class = merge(
+    var.efs_storage_class,
+    {
+      file_system_id = module.efs.file_system_id
+    }
+  )
+
+  depends_on = [
+    module.efs,
+    module.efs_csi
+  ]
+}
+
 ########################################################################################################
 #                                        EBS VOLUMLES                                                  #
 ########################################################################################################
@@ -1037,6 +1090,10 @@ module "aws_config_rules" {
 
   config_rules = var.config_rules
 
+  depends_on = [
+    module.aws_config
+  ]
+
 }
 
 
@@ -1097,6 +1154,24 @@ module "fluent_bit" {
 
 
 #########################################################
+# KUBE PROMETHEUS STACK
+#########################################################
+
+module "kube_prometheus_stack" {
+  source = "../../modules/observability/metrics/kube-prometheus-stack"
+
+  kube_prometheus_stack = var.kube_prometheus_stack
+
+
+  depends_on = [
+    module.eks_cluster,
+    module.eks_node_groups,
+    module.ebs_csi
+  ]
+}
+
+
+#########################################################
 # OPENTELEMETRY
 #########################################################
 
@@ -1111,6 +1186,49 @@ module "opentelemetry" {
     }
   )
 
+}
+
+########################################################
+# SONAR QUBE 
+########################################################
+module "sonarqube" {
+  source = "../../modules/devsecops/sonarqube"
+
+  sonarqube = var.sonarqube
+
+  depends_on = [
+    module.eks_cluster,
+    module.eks_node_groups,
+    module.ebs_csi
+  ]
+}
+
+#########################################################
+# Trivy Operator
+#########################################################
+module "trivy_operator" {
+  source = "../../modules/devsecops/trivy-operator"
+
+  trivy_operator = var.trivy_operator
+
+  depends_on = [
+    module.eks_cluster,
+    module.eks_node_groups
+  ]
+}
+
+#########################################################
+# ARGO CD
+#########################################################
+module "argocd" {
+  source = "../../modules/gitops/argocd"
+
+  argocd = var.argocd
+
+  depends_on = [
+    module.eks_cluster,
+    module.eks_node_groups
+  ]
 }
 
 #########################################################

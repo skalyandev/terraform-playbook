@@ -1200,6 +1200,257 @@ variable "finops_notification_sns_topic_arns" {
   default = []
 }
 
+
+##########################################################
+# Grafana
+##########################################################
+#########################################################
+# KUBE PROMETHEUS STACK
+#########################################################
+
+variable "kube_prometheus_stack" {
+  description = "Kube Prometheus Stack configuration"
+
+  type = object({
+
+    #######################################################
+    # ENABLE / DISABLE
+    #######################################################
+
+    enabled = bool
+
+    #######################################################
+    # HELM
+    #######################################################
+
+    release_name = string
+
+    namespace = string
+
+    repository = string
+
+    chart_name = string
+
+    chart_version = string
+
+    #######################################################
+    # PROMETHEUS
+    #######################################################
+
+    prometheus_enabled = bool
+
+    prometheus_retention = string
+
+    prometheus_storage_class = string
+
+    prometheus_storage_size = string
+
+    prometheus_cpu_request = string
+
+    prometheus_memory_request = string
+
+    prometheus_cpu_limit = string
+
+    prometheus_memory_limit = string
+
+    #######################################################
+    # GRAFANA
+    #######################################################
+
+    grafana_enabled = bool
+
+    grafana_storage_class = string
+
+    grafana_storage_size = string
+
+    grafana_cpu_request = string
+
+    grafana_memory_request = string
+
+    grafana_cpu_limit = string
+
+    grafana_memory_limit = string
+
+    #######################################################
+    # ALERTMANAGER
+    #######################################################
+
+    alertmanager_enabled = bool
+
+    alertmanager_storage_class = string
+
+    alertmanager_storage_size = string
+
+    #######################################################
+    # KUBERNETES METRICS COMPONENTS
+    #######################################################
+
+    kube_state_metrics_enabled = bool
+
+    node_exporter_enabled = bool
+
+    #######################################################
+    # RESOURCES
+    #######################################################
+
+    kube_state_metrics_cpu_request = string
+
+    kube_state_metrics_memory_request = string
+
+    node_exporter_cpu_request = string
+
+    node_exporter_memory_request = string
+
+    #######################################################
+    # TAGS
+    #######################################################
+
+    tags = map(string)
+  })
+}
+
+
+
+#########################################################
+# SONAR QUBE VARIABLES
+#########################################################
+variable "sonarqube" {
+  description = "SonarQube Helm deployment configuration."
+
+  type = object({
+    enabled = bool
+
+    release_name = string
+    namespace    = string
+
+    repository    = string
+    chart_name    = string
+    chart_version = string
+
+    replicas = number
+
+    service_type = string
+    service_port = number
+
+    persistence_enabled       = bool
+    persistence_storage_class = string
+    persistence_size          = string
+
+    monitoring_passcode_enabled = bool
+    monitoring_passcode         = string
+
+    community_enabled = bool
+
+    cpu_request    = string
+    memory_request = string
+    cpu_limit      = string
+    memory_limit   = string
+
+    tags = map(string)
+  })
+}
+
+
+########################################################
+# Trivy Operator
+########################################################
+variable "trivy_operator" {
+  description = "Trivy Operator Helm deployment configuration."
+
+  type = object({
+    enabled = bool
+
+    release_name = string
+    namespace    = string
+
+    repository    = string
+    chart_name    = string
+    chart_version = string
+
+    target_namespaces  = string
+    exclude_namespaces = string
+
+    scan_job_timeout = string
+
+    scan_job_ttl = string
+
+    concurrent_scan_jobs_limit = number
+
+    scanner_report_ttl = string
+
+    metrics_bind_address = string
+
+    resources = object({
+      cpu_request    = string
+      memory_request = string
+      cpu_limit      = string
+      memory_limit   = string
+    })
+
+    tags = map(string)
+  })
+}
+
+
+#######################################################
+# ARGO CD
+########################################################
+variable "argocd" {
+  description = "Argo CD Helm deployment configuration."
+
+  type = object({
+    enabled = bool
+
+    release_name = string
+    namespace    = string
+
+    repository    = string
+    chart_name    = string
+    chart_version = string
+
+    server_replicas      = number
+    repo_server_replicas = number
+    controller_replicas  = number
+
+    server_service_type = string
+    server_service_port = number
+
+    server_insecure = bool
+
+    redis_ha_enabled = bool
+
+    application_set_enabled = bool
+
+    notifications_enabled = bool
+
+    resources = object({
+      server = object({
+        cpu_request    = string
+        memory_request = string
+        cpu_limit      = string
+        memory_limit   = string
+      })
+
+      repo_server = object({
+        cpu_request    = string
+        memory_request = string
+        cpu_limit      = string
+        memory_limit   = string
+      })
+
+      controller = object({
+        cpu_request    = string
+        memory_request = string
+        cpu_limit      = string
+        memory_limit   = string
+      })
+    })
+
+    tags = map(string)
+  })
+}
+
+
 #########################################################
 # FINOPS - COST ANOMALY DETECTION
 #########################################################
@@ -1252,3 +1503,83 @@ variable "finops_cost_anomaly_percentage_threshold" {
 }
 
 
+#########################################################
+# EFS FILESYSTEM
+########################################################
+variable "efs" {
+  description = "AWS EFS filesystem configuration."
+
+  type = object({
+    enabled                              = bool
+    name                                 = string
+    encrypted                            = bool
+    performance_mode                     = string
+    throughput_mode                      = string
+    transition_to_ia                     = string
+    transition_to_archive                = string
+    transition_to_primary_storage_class = string
+
+    tags = optional(map(string), {})
+  })
+}
+
+#######################################################
+# EBS GP3 VARIABLES
+#######################################################
+variable "ebs_gp3_storage_classes" {
+  description = "Kubernetes EBS GP3 StorageClass configurations."
+
+  type = map(object({
+    enabled = bool
+
+    name = string
+
+    provisioner = string
+
+    reclaim_policy         = string
+    volume_binding_mode    = string
+    allow_volume_expansion = bool
+
+    parameters = map(string)
+
+    annotations = optional(
+      map(string),
+      {}
+    )
+
+    labels = optional(
+      map(string),
+      {}
+    )
+  }))
+}
+
+
+#######################################################
+# EFS VARIABLES
+#######################################################
+variable "efs_storage_class" {
+  description = "EFS Kubernetes StorageClass configuration."
+
+  type = object({
+    enabled = bool
+
+    name = string
+
+    provisioning_mode = string
+    directory_perms = string
+    base_path = string
+    reclaim_policy      = string
+    volume_binding_mode = string
+    mount_options = list(string)
+    annotations = optional(
+      map(string),
+      {}
+    )
+
+    labels = optional(
+      map(string),
+      {}
+    )
+  })
+}

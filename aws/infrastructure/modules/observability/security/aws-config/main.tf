@@ -7,19 +7,16 @@ resource "aws_config_delivery_channel" "this" {
   count = var.config.enabled ? 1 : 0
 
   name = var.config.name
-
   s3_bucket_name = var.config.s3_bucket_name
-
   s3_key_prefix = var.config.s3_key_prefix
-
   sns_topic_arn = var.config.sns_topic_arn
-
   snapshot_delivery_properties {
-
     delivery_frequency = var.config.delivery_frequency
-
   }
 
+  depends_on = [
+    aws_config_configuration_recorder.this
+  ]
 }
 
 

@@ -56,6 +56,8 @@ output "public_subnet_ids" {
   }
 }
 
+
+
 output "subnet_details" {
   description = "Subnet details keyed by subnet name"
 

@@ -1,6 +1,5 @@
 #!/bin/bash
-# Jenkins bootstrap version: 2026-09-18-v2
-
+# Jenkins bootstrap version: 2026-09-24-v3
 
 set -euo pipefail
 
@@ -27,6 +26,22 @@ dnf install -y java-21-amazon-corretto
 
 echo "Verifying Java..."
 java -version
+
+echo "Installing Trivy..."
+cat <<'EOF' > /etc/yum.repos.d/trivy.repo
+[trivy]
+name=Trivy repository
+baseurl=https://aquasecurity.github.io/trivy-repo/rpm/releases/$basearch/
+gpgcheck=1
+enabled=1
+gpgkey=https://aquasecurity.github.io/trivy-repo/rpm/public.key
+EOF
+
+echo "Installing Trivy package..."
+dnf install -y trivy
+
+echo "Verifying Trivy..."
+trivy --version
 
 echo "Configuring Jenkins repository..."
 wget -O /etc/yum.repos.d/jenkins.repo \
@@ -55,6 +70,9 @@ systemctl --no-pager --full status jenkins || true
 
 echo "Jenkins version:"
 jenkins --version || true
+
+echo "Trivy version:"
+trivy --version
 
 echo "========================================"
 echo "Jenkins bootstrap completed: $(date)"
